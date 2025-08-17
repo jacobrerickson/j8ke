@@ -1,0 +1,235 @@
+---
+description: package-manager
+globs: 
+alwaysApply: true
+---
+# PNPM Package Manager Guide
+
+## Overview
+This monorepo uses PNPM as its package manager. PNPM offers efficient dependency management through its unique symlink-based node_modules structure and built-in monorepo support.
+
+## Workspace Structure
+```
+.
+├── apps/
+│   ├── native/         # React Native mobile app
+│   └── web/           # Web application
+├── packages/
+│   ├── server/        # Backend server
+├── pnpm-workspace.yaml
+└── package.json
+```
+
+## Installation and Setup
+
+### Installing PNPM
+```bash
+# Install PNPM globally
+npm install -g pnpm
+
+# Verify installation
+pnpm --version
+```
+
+### Workspace Configuration
+The `pnpm-workspace.yaml` defines our workspace structure:
+```yaml
+packages:
+  - 'apps/*'
+  - 'packages/*'
+```
+
+## Common Commands
+
+### Installing Dependencies
+
+```bash
+# Install all dependencies in the workspace
+pnpm install
+
+# Install a package in a specific workspace
+cd apps/native
+pnpm add package-name
+
+# Install a package as a dev dependency
+pnpm add -D package-name
+
+# Install a specific version
+pnpm add package-name@version
+
+# Install from a specific registry
+pnpm add package-name --registry=registry-url
+```
+
+### Managing Workspaces
+
+```bash
+# Run a script in all workspaces
+pnpm -r run script-name
+
+# Run a script in a specific workspace
+pnpm --filter workspace-name run script-name
+
+# Clean all node_modules
+pnpm -r exec rm -rf node_modules
+pnpm install
+```
+
+### Dependency Management
+
+```bash
+# Add a workspace package as a dependency
+pnpm add @repo/server --workspace
+
+# Update all dependencies
+pnpm update -r
+
+# Check for outdated packages
+pnpm outdated -r
+```
+
+## Best Practices
+
+### 1. Workspace Dependencies
+When adding dependencies between workspace packages, use the workspace protocol:
+```json
+{
+  "dependencies": {
+    "@repo/server": "workspace:*"
+  }
+}
+```
+
+### 2. Shared Dependencies
+Place commonly used dependencies in the root `package.json` to ensure version consistency:
+```json
+{
+  "dependencies": {
+    "typescript": "^5.0.0",
+    "tsconfig": "workspace:*"
+  }
+}
+```
+
+### 3. Version Management
+- Use exact versions for critical dependencies
+- Use caret (^) for flexible minor version updates
+- Lock files should always be committed
+
+### 4. Scripts
+Define commonly used scripts in the root `package.json`:
+```json
+{
+  "scripts": {
+    "dev": "pnpm -r run dev",
+    "build": "pnpm -r run build",
+    "test": "pnpm -r run test",
+    "lint": "pnpm -r run lint"
+  }
+}
+```
+
+## Environment-Specific Installation
+
+### React Native (apps/native)
+```bash
+cd apps/native
+pnpm add react-native-package-name
+```
+
+### Backend (packages/server)
+```bash
+cd packages/server
+pnpm add express @types/express
+```
+
+## Troubleshooting
+
+### Common Issues and Solutions
+
+1. **Dependency Conflicts**
+   ```bash
+   # Force resolution of dependencies
+   pnpm install --force
+   ```
+
+2. **Hoisting Issues**
+   Add problematic packages to `.npmrc`:
+   ```
+   public-hoist-pattern[]=*types*
+   public-hoist-pattern[]=*eslint*
+   ```
+
+3. **Workspace Package Not Found**
+   ```bash
+   # Rebuild the workspace
+   pnpm install --force
+   ```
+
+4. **Clean Install**
+   ```bash
+   # Remove all dependencies and reinstall
+   pnpm -r exec rm -rf node_modules
+   rm -rf node_modules
+   pnpm store prune
+   pnpm install
+   ```
+
+## Performance Tips
+
+1. **Faster Installations**
+   ```bash
+   # Enable store compression
+   pnpm config set compression-level 1
+   ```
+
+2. **Disk Space Optimization**
+   ```bash
+   # Clean up unused packages
+   pnpm store prune
+   ```
+
+3. **Cache Management**
+   ```bash
+   # Clear cache if needed
+   pnpm store prune
+   ```
+
+## CI/CD Configuration
+
+### GitHub Actions Example
+```yaml
+steps:
+  - uses: actions/checkout@v3
+  - uses: pnpm/action-setup@v2
+    with:
+      version: 8
+  - name: Install dependencies
+    run: pnpm install --frozen-lockfile
+```
+
+## Version Control
+
+### Files to Commit
+- `pnpm-lock.yaml`
+- `package.json`
+- `.npmrc`
+
+### Files to Ignore
+```gitignore
+node_modules/
+.pnpm-store/
+```
+
+## Security Best Practices
+
+1. Use `--frozen-lockfile` in CI environments
+2. Regularly update dependencies with `pnpm audit`
+3. Use `.npmrc` for registry configuration
+4. Enable strict-peer-dependencies in `.npmrc`
+
+## Additional Resources
+
+- [PNPM Documentation](mdc:https:/pnpm.io/motivation)
+- [Workspace Guidance](mdc:https:/pnpm.io/workspaces)
+- [Configuration Reference](mdc:https:/pnpm.io/npmrc) 

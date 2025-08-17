@@ -1,0 +1,339 @@
+---
+description: database
+globs: 
+alwaysApply: false
+---
+---
+description: 
+globs: 
+alwaysApply: false
+---
+---
+description: database
+globs: 
+---
+Description: MongoDB Database Implementation Guide
+
+Database Setup:
+```typescript
+// db/index.ts
+import mongoose from 'mongoose';
+
+mongoose.connect(process.env.MONGODB_URI!)
+    .then(() => console.log('Connected to MongoDB'))
+    .catch(err => console.error('MongoDB connection error:', err));
+
+// Enable debug mode in development
+if (process.env.NODE_ENV === 'development') {
+    mongoose.set('debug', true);
+}
+```
+
+Model Structure:
+1. Base Template:
+```typescript
+// models/example.ts
+import { Schema, model, Document } from "mongoose";
+
+// Document interface - internal MongoDB type
+export interface ExampleDocument extends Document {
+    _id: string;
+    field1: string;
+    field2: number;
+    createdAt: string;
+    updatedAt: string;
+}
+
+// Client interface - what gets sent to the client
+export interface Example {
+    id: string;  // Transformed from _id
+    field1: string;
+    field2: number;
+    createdAt: string;
+    updatedAt: string;
+}
+
+const exampleSchema = new Schema<ExampleDocument>(
+    {
+        field1: {
+            type: String,
+            required: true
+        },
+        field2: {
+            type: Number,
+            default: 0
+        }
+    },
+    { timestamps: true }
+);
+
+// Add indexes
+exampleSchema.index({ field1: 1 });
+
+const ExampleModel = model("Examples", exampleSchema);
+export default ExampleModel;
+```
+
+2. Relationships:
+```typescript
+// One-to-Many Relationship
+const chatSchema = new Schema({
+    participants: [{
+        type: Schema.Types.ObjectId,
+        ref: 'Users'
+    }],
+    lastMessage: {
+        type: Schema.Types.ObjectId,
+        ref: 'Messages'
+    }
+});
+
+// Many-to-Many Relationship with additional fields
+const participantSchema = new Schema({
+    userId: {
+        type: Schema.Types.ObjectId,
+        ref: 'Users'
+    },
+    chatId: {
+        type: Schema.Types.ObjectId,
+        ref: 'Chats'
+    },
+    joinedAt: {
+        type: Date,
+        default: Date.now
+    }
+});
+```
+
+3. Unique Constraints:
+```typescript
+// Single field unique
+const userSchema = new Schema({
+    email: {
+        type: String,
+        required: true,
+        unique: true
+    }
+});
+
+// Compound unique index
+const roleSchema = new Schema({
+    userId: {
+        type: Schema.Types.ObjectId,
+        ref: 'Users'
+    },
+    organizationId: {
+        type: Schema.Types.ObjectId,
+        ref: 'Organizations'
+    }
+});
+
+roleSchema.index(
+    { userId: 1, organizationId: 1 },
+    { unique: true }
+);
+```
+
+Best Practices:
+
+1. Schema Design:
+```typescript
+// Use strict schema validation
+const schema = new Schema({...}, {
+    strict: true,  // Reject fields not in schema
+    timestamps: true,  // Add createdAt and updatedAt
+    versionKey: false  // Remove __v field
+});
+
+// Add proper field validation
+const userSchema = new Schema({
+    email: {
+        type: String,
+        required: true,
+        unique: true,
+        lowercase: true,
+        trim: true,
+        validate: {
+            validator: (v: string) => /\S+@\S+\.\S+/.test(v),
+            message: 'Invalid email format'
+        }
+    }
+});
+```
+
+2. Indexing:
+```typescript
+// Single field index
+schema.index({ createdAt: -1 });
+
+// Compound index
+schema.index({ field1: 1, field2: -1 });
+
+// Text index for search
+schema.index({ title: 'text', description: 'text' });
+
+// Geospatial index
+schema.index({ location: '2dsphere' });
+```
+
+3. Population:
+```typescript
+// Selective population with type safety
+interface PopulatedChat extends Omit<ChatDocument, 'participants'> {
+    participants: PopulatedUser[];
+}
+
+const chat = await ChatModel
+    .findById(id)
+    .populate<{ participants: PopulatedUser[] }>({
+        path: 'participants',
+        select: 'name email profileImage'
+    });
+```
+
+4. Querying:
+```typescript
+// Use lean() for better performance
+const users = await UserModel
+    .find({ /* query */ })
+    .select('name email')
+    .lean();
+
+// Pagination
+const messages = await MessageModel
+    .find({ chatId })
+    .sort({ createdAt: -1 })
+    .skip(page * limit)
+    .limit(limit)
+    .lean();
+
+// Aggregation
+const stats = await UserModel.aggregate([
+    { $match: { isActive: true } },
+    { $group: { _id: '$role', count: { $sum: 1 } } }
+]);
+```
+
+Performance Optimization:
+
+1. Indexes:
+- Create indexes for frequently queried fields
+- Use compound indexes for queries with multiple conditions
+- Avoid over-indexing (impacts write performance)
+- Monitor index usage with `explain()`
+
+2. Query Optimization:
+```typescript
+// Select only needed fields
+const user = await UserModel
+    .findById(id)
+    .select('name email')
+    .lean();
+
+// Use specific operators
+const recentUsers = await UserModel
+    .find({
+        createdAt: { $gt: oneWeekAgo },
+        isActive: true
+    })
+    .hint({ createdAt: 1 });  // Force index usage
+```
+
+3. Batch Operations:
+```typescript
+// Use bulkWrite for multiple operations
+await UserModel.bulkWrite([
+    {
+        updateOne: {
+            filter: { _id: id1 },
+            update: { $set: { status: 'active' } }
+        }
+    },
+    {
+        updateOne: {
+            filter: { _id: id2 },
+            update: { $set: { status: 'inactive' } }
+        }
+    }
+]);
+```
+
+Data Validation:
+
+1. Schema Level:
+```typescript
+const schema = new Schema({
+    age: {
+        type: Number,
+        min: [0, 'Age cannot be negative'],
+        max: [120, 'Age cannot exceed 120']
+    },
+    status: {
+        type: String,
+        enum: ['active', 'inactive', 'pending']
+    }
+});
+```
+
+2. Custom Validators:
+```typescript
+const schema = new Schema({
+    password: {
+        type: String,
+        validate: {
+            validator: function(v: string) {
+                return /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/.test(v);
+            },
+            message: 'Password must be at least 8 characters and contain letters and numbers'
+        }
+    }
+});
+```
+
+Error Handling:
+
+1. Duplicate Key Errors:
+```typescript
+try {
+    await UserModel.create({ email: 'existing@email.com' });
+} catch (error) {
+    if (error.code === 11000) {
+        throw new Error('Email already exists');
+    }
+    throw error;
+}
+```
+
+2. Validation Errors:
+```typescript
+try {
+    await user.validate();
+} catch (error) {
+    if (error.name === 'ValidationError') {
+        const errors = Object.values(error.errors).map(err => err.message);
+        throw new Error(errors.join(', '));
+    }
+    throw error;
+}
+```
+
+Monitoring and Maintenance:
+
+1. Connection Management:
+```typescript
+mongoose.connection.on('error', err => {
+    console.error('MongoDB connection error:', err);
+});
+
+mongoose.connection.on('disconnected', () => {
+    console.log('MongoDB disconnected');
+});
+```
+
+2. Performance Monitoring:
+```typescript
+// Log slow queries
+mongoose.set('debug', (collectionName, method, query, doc) => {
+    console.log(`${collectionName}.${method}`, JSON.stringify(query), doc);
+});
+```

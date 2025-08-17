@@ -1,0 +1,159 @@
+---
+description: Web Sockets
+globs: 
+alwaysApply: false
+---
+Description: Socket Setup and Usage Guide
+
+Socket Provider Setup:
+- Socket provider is located in `apps/native/utils/socket-provider.tsx`
+- Server socket setup is in `packages/server/src/lib/socket.ts`
+
+Socket Configuration:
+```typescript
+// Client-side socket configuration
+const socketInstance = io(process.env.EXPO_PUBLIC_SERVER_URL!, {
+    auth: { token: authToken },
+    transports: ['websocket', 'polling'],
+    autoConnect: false,          // Important: Manual connection control
+    reconnection: true,
+    reconnectionAttempts: 5,
+    reconnectionDelay: 1000,
+    timeout: 10000,
+    forceNew: true
+});
+```
+
+Socket Provider Implementation:
+1. Wrap your app with SocketProvider in `_layout.tsx`:
+```typescript
+<SocketProvider>
+    <App />
+</SocketProvider>
+```
+
+2. Use the socket hook in components:
+```typescript
+const { socket, isConnected } = useSocket();
+```
+
+Socket Event Handling:
+1. Always clean up socket listeners in useEffect:
+```typescript
+useEffect(() => {
+    if (!socket) return;
+
+    socket.on('eventName', handler);
+
+    return () => {
+        socket.off('eventName');
+    };
+}, [socket]);
+```
+
+2. Request initial state after connection:
+```typescript
+socket.on('connect', () => {
+    socket.emit('requestOnlineUsers');
+});
+```
+
+Socket Disconnection:
+1. Manual disconnect (e.g., during sign-out):
+```typescript
+if (socket) {
+    socket.emit('manualDisconnect');
+    socket.close();
+    socket.disconnect();
+    await new Promise(resolve => setTimeout(resolve, 200));
+}
+```
+
+Common Events:
+1. Online Status:
+- 'userOnlineStatus' - User online/offline updates
+- 'initialOnlineUsers' - Initial list of online users
+- 'requestOnlineUsers' - Request current online users
+
+2. Chat Events:
+- 'userTyping' - User started typing
+- 'userStoppedTyping' - User stopped typing
+- 'newMessage' - New message received
+- 'messageRead' - Message read status update
+
+Best Practices:
+1. Error Handling:
+- Always handle socket connection errors
+- Implement reconnection logic
+- Log socket events for debugging
+
+2. State Management:
+- Keep socket state in context
+- Use isConnected flag to track connection status
+- Handle disconnections gracefully
+
+3. Performance:
+- Use 'autoConnect: false' for manual connection control
+- Clean up listeners to prevent memory leaks
+- Implement proper reconnection strategies
+
+4. Security:
+- Always authenticate sockets using tokens
+- Validate user permissions on server
+- Handle token expiration
+
+5. Debugging:
+- Log socket events and state changes
+- Monitor connection status
+- Track event emissions and listeners
+
+Example Socket Event Implementation:
+```typescript
+// Server-side
+socket.on('startTyping', (data: { chatId: string }) => {
+    const recipientSockets = this.users
+        .filter(user => user.userId !== socket.data.userId)
+        .map(user => user.socketId);
+
+    recipientSockets.forEach(recipientSocket => {
+        this.io.to(recipientSocket).emit('userTyping', {
+            chatId: data.chatId,
+            userId: socket.data.userId
+        });
+    });
+});
+
+// Client-side
+useEffect(() => {
+    if (!socket) return;
+
+    socket.on('userTyping', ({ chatId, userId }) => {
+        if (chatId === currentChatId && userId !== currentUser?.id) {
+            setIsTyping(true);
+        }
+    });
+
+    return () => socket.off('userTyping');
+}, [socket, currentChatId, currentUser?.id]);
+```
+
+Common Issues and Solutions:
+1. Disconnection Handling:
+- Implement automatic reconnection
+- Cache necessary data for offline support
+- Show connection status to users
+
+2. Event Race Conditions:
+- Wait for connection before emitting events
+- Handle out-of-order messages
+- Implement proper error boundaries
+
+3. Multiple Connections:
+- Track active connections per user
+- Handle duplicate connections
+- Clean up old connections
+
+4. State Synchronization:
+- Request initial state after connection
+- Handle missed events during disconnection
+- Implement proper state recovery 

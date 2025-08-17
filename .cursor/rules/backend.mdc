@@ -1,0 +1,255 @@
+---
+description: backend/server
+globs: 
+alwaysApply: false
+---
+Description: Backend Server Implementation Guide
+
+Project Structure:
+```
+packages/server/
+├── src/
+│   ├── controllers/    # Business logic
+│   ├── models/        # Mongoose models & TypeScript interfaces
+│   ├── router/        # tRPC router definitions
+│   ├── lib/          # Utilities and services
+│   │   ├── socket.ts  # Socket.io implementation
+│   │   ├── trpc.ts   # tRPC setup
+│   │   └── jwt.ts    # Authentication utilities
+│   └── index.ts      # Server entry point
+```
+
+API Architecture:
+1. Models:
+```typescript
+// Example User Model (models/user.ts)
+export interface UserDocument extends Document {
+    _id: string;
+    name: string;
+    email: string;
+    // ... other fields
+}
+
+export interface User {
+    id: string;  // Note: Convert _id to id for client
+    name: string;
+    // ... other fields without internal DB types
+}
+
+const userSchema = new Schema<UserDocument>({
+    name: { type: String, required: true },
+    email: { type: String, required: true, unique: true },
+    // ... other fields
+}, { timestamps: true });
+```
+
+2. Controllers:
+```typescript
+// Example controller (controllers/users.ts)
+export async function getUserById(id: string) {
+    try {
+        const user = await UserModel.findById(id, {
+            password: 0,  // Exclude sensitive fields
+            roles: 0,
+        });
+
+        if (!user) {
+            throw new Error("User not found");
+        }
+
+        // Always transform MongoDB document to client interface
+        return {
+            id: user._id.toString(),
+            name: user.name,
+            // ... other fields
+        } as User;
+    } catch (error) {
+        console.error("Error fetching user:", error);
+        throw new Error("Failed to fetch user");
+    }
+}
+```
+
+3. Routers:
+```typescript
+// Example router (router/users.ts)
+import { idValidationSchema } from "../validators/auth";
+import { privateProcedure trpc } from '../lib/trpc';
+export const usersRouter = trpc.router({
+    getById: privateProcedure
+        .input(idValidationSchema))
+        .query(async ({ input }) => {
+            return getUserById(input.id);
+        }),
+});
+```
+
+Best Practices:
+
+1. Error Handling:
+```typescript
+// Use custom error class for consistent error handling
+export class ExtendedTRPCError extends TRPCError {
+    constructor(code: TRPC_ERROR_CODE_KEY, message: string) {
+        super({ code, message });
+    }
+}
+
+// In controllers
+try {
+    // ... logic
+} catch (error) {
+    console.error("Error context:", error);
+    if (error instanceof ExtendedTRPCError) {
+        throw error;
+    }
+    throw new ExtendedTRPCError(
+        "INTERNAL_SERVER_ERROR",
+        "Specific error message"
+    );
+}
+```
+
+2. Data Validation:
+```typescript
+// Use Zod for input validation
+.input(z.object({
+    name: z.string().min(1, "Name is required"),
+    email: z.string().email("Invalid email format"),
+    password: z.string().min(8, "Password must be at least 8 characters")
+}))
+```
+
+3. Authentication:
+```typescript
+// Protect routes with privateProcedure
+export const privateProcedure = trpc.procedure.use(async ({ ctx, next }) => {
+    if (!ctx.req.user) {
+        throw new TRPCError({ code: 'UNAUTHORIZED' });
+    }
+    return next({
+        ctx: {
+            ...ctx,
+            user: ctx.req.user
+        }
+    });
+});
+```
+
+4. Real-time Updates:
+- Use socket.io for real-time features
+- Implement proper disconnection handling
+- Track user connections and online status
+
+5. Database Queries:
+```typescript
+// Use lean() for better performance when possible
+const users = await UserModel
+    .find({ /* query */ })
+    .select('name email')  // Select only needed fields
+    .lean();
+
+// Use proper indexes
+userSchema.index({ email: 1 }, { unique: true });
+userSchema.index({ createdAt: -1 });
+```
+
+6. File Structure:
+- Keep models, controllers, and routes separate
+- Use interfaces for type definitions
+- Share types between frontend and backend
+
+Common Patterns:
+
+1. Population Handling:
+```typescript
+interface PopulatedChat extends Omit<ChatDocument, 'participants'> {
+    participants: PopulatedParticipant[];
+}
+
+const chat = await ChatModel
+    .findById(id)
+    .populate<{ participants: PopulatedParticipant[] }>({
+        path: 'participants',
+        select: '_id name profileImage'
+    });
+```
+
+2. Response Transformation:
+```typescript
+// Always transform MongoDB documents to client interfaces
+return {
+    id: doc._id.toString(),  // Convert ObjectId to string
+    createdAt: doc.createdAt.toISOString(),  // Format dates
+    // ... other fields
+};
+```
+
+3. Pagination:
+```typescript
+export async function getMessages(
+    chatId: string,
+    limit: number = 50,
+    before?: Date
+) {
+    const query = { chatId };
+    if (before) {
+        query.createdAt = { $lt: before };
+    }
+
+    return MessageModel
+        .find(query)
+        .sort({ createdAt: -1 })
+        .limit(limit);
+}
+```
+
+Security Considerations:
+
+1. Data Access:
+- Always validate user permissions
+- Use projection to exclude sensitive fields
+- Implement rate limiting for APIs
+
+2. Authentication:
+- Use JWT for stateless authentication
+- Implement token refresh mechanism
+- Secure socket connections with auth tokens
+
+3. Data Validation:
+- Validate all inputs with Zod
+- Sanitize user inputs
+- Implement request size limits
+
+Performance Tips:
+
+1. Database:
+- Use appropriate indexes
+- Implement query optimization
+- Use lean() queries when possible
+- Implement caching strategies
+
+2. API:
+- Implement pagination
+- Use projection to limit returned fields
+- Batch related operations
+- Use transactions when necessary
+
+3. Real-time:
+- Implement proper socket cleanup
+- Handle reconnection gracefully
+- Batch real-time updates when possible
+
+Debugging:
+
+1. Logging:
+- Implement structured logging
+- Log important operations
+- Include relevant context in logs
+- Use different log levels
+
+2. Error Tracking:
+- Implement proper error handling
+- Log stack traces
+- Track API performance
+- Monitor real-time connections 

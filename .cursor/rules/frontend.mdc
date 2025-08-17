@@ -1,0 +1,808 @@
+---
+description: frontend
+globs: 
+alwaysApply: true
+---
+---
+description: frontend
+globs: 
+alwaysApply: false
+---
+---
+description: 
+globs: 
+alwaysApply: false
+---
+---
+description: Documentation for Next.js tech stack implementation with tRPC, Redux, Tailwind, and PrimeFlex
+globs: ["**/app/**", "**/components/**", "**/lib/**", "**/store/**"]
+alwaysApply: false
+---
+
+# Next.js Tech Stack Architecture
+
+## Overview
+A modern, type-safe full-stack architecture using Next.js 14 with App Router, tRPC for type-safe APIs, Redux for state management, and Tailwind CSS with PrimeFlex for styling.
+
+## Project Structure
+```
+src/
+├── app/                    # Next.js App Router pages
+│   ├── (dashboard)/            # Authentication required routes
+│   │   ├── dashboard/     # Dashboard and authenticated features
+│   │   └── settings/      # User settings
+│   ├── (public)/          # Public routes
+│   │   ├── login/        # Authentication pages
+│   │   └── register/     # Registration pages
+│   └── layout.tsx        # Root layout
+├── components/           # React components
+│   ├── auth/            # Authentication components
+│   ├── layout/          # Layout components
+│   │   ├── navigation/  # Navigation components
+│   │   └── shared/      # Shared layout components
+│   ├── shared/          # Shared/common components
+│   └── ui/              # UI components
+├── lib/                  # Utility functions and configurations
+│   ├── trpc/            # tRPC configuration
+│   └── utils/           # Helper functions
+├── store/               # Redux store configuration
+│   ├── slices/         # Redux slices
+│   ├── middleware/     # Redux middleware
+│   └── index.ts        # Store configuration
+└── styles/             # Global styles and Tailwind configuration
+```
+
+## Style System
+
+### Tailwind Configuration
+```typescript
+// tailwind.config.js
+module.exports = {
+  content: [
+    './src/**/*.{js,ts,jsx,tsx}',
+  ],
+  prefix: 'tw-', // Prefix all Tailwind classes
+  theme: {
+    extend: {
+      colors: {
+        primary: {
+          DEFAULT: '#007bff',
+          // ... other shades
+        },
+        // ... other custom colors
+      },
+    },
+  },
+  plugins: [
+    require('@tailwindcss/forms'),
+    require('@tailwindcss/typography'),
+  ],
+}
+```
+
+### PrimeFlex Integration
+```typescript
+// styles/globals.css
+@import 'primeflex/primeflex.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+// Custom utility classes
+.layout-container {
+  @apply tw-container tw-mx-auto tw-px-4;
+}
+```
+
+## Authentication System
+
+### Client-Side Authentication
+```typescript
+// hooks/use-auth.ts
+import { clearAuthState, getAuthState, setAuthState } from "@/store/auth"
+import { useDispatch, useSelector } from "react-redux"
+import { client } from "@/utils/trpc-provider"
+import { TokensStorage } from "@/utils/tokens-storage"
+
+const useAuth = () => {
+    const dispatch = useDispatch()
+    const authState = useSelector(getAuthState)
+    const loggedIn = authState.profile !== null
+
+    const signIn = async (email: string, password: string) => {
+        try {
+            const response = await client.auth.signin.mutate({ email, password })
+            TokensStorage.setTokens(response.tokens.access, response.tokens.refresh)
+            dispatch(setAuthState(response))
+            return response
+        } catch (error) {
+            throw Error((error as Error).message)
+        }
+    }
+
+    const verifyEmailCode = async (email: string, password: string, code: string) => {
+        try {
+            const resp = await client.auth.verifyEmailCode.mutate({ email, password, code })
+            TokensStorage.setTokens(resp.tokens.access, resp.tokens.refresh)
+            dispatch(setAuthState(resp))
+        } catch (error) {
+            throw Error((error as Error).message)
+        }
+    }
+
+    const signInWithGoogle = async (oauthIdToken: string) => {
+        try {
+            const resp = await client.auth.signInWithOauth.mutate({ oauthIdToken });
+            TokensStorage.setTokens(resp.tokens.access, resp.tokens.refresh);
+            dispatch(setAuthState(resp));
+        } catch (error) {
+            throw Error((error as Error).message);
+        }
+    }
+
+    const signOut = async () => {
+        try {
+            await client.auth.signout.mutate({ refreshToken: authState.tokens!!.refresh })
+            dispatch(clearAuthState())
+            TokensStorage.clearTokens()
+        } catch (error) {
+            // Force logout on error
+            dispatch(clearAuthState())
+            TokensStorage.clearTokens()
+        }
+    }
+
+    return { loggedIn, signIn, signOut, signInWithGoogle, verifyEmailCode }
+}
+
+export default useAuth
+```
+
+### Protected Routes
+```typescript
+// components/auth/ProtectedRoute.tsx
+'use client';
+
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
+import useAuth from '@/hooks/use-auth';
+
+export const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+    const { loggedIn } = useAuth();
+    const router = useRouter();
+
+    useEffect(() => {
+        if (!loggedIn) {
+            router.replace('/login');
+        }
+    }, [loggedIn]);
+
+    if (!loggedIn) {
+        return null;
+    }
+
+    return <>{children}</>;
+};
+```
+
+### Authentication Components
+
+#### Login Form
+```typescript
+// components/auth/LoginForm.tsx
+'use client';
+
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import useAuth from '@/hooks/use-auth';
+
+export const LoginForm = () => {
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [error, setError] = useState('');
+    const router = useRouter();
+    const { signIn } = useAuth();
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setError('');
+        
+        try {
+            await signIn(email, password);
+            router.push('/dashboard');
+        } catch (error) {
+            setError((error as Error).message);
+        }
+    };
+
+    return (
+        <form onSubmit={handleSubmit}>
+            {/* Form implementation */}
+        </form>
+    );
+};
+```
+
+### Route Protection with Layouts
+
+#### Auth Layout
+```typescript
+// components/layout/AuthLayout.tsx
+'use client';
+
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import useAuth from '@/hooks/use-auth';
+import { Header, Sidebar } from '@/components/layout/navigation';
+
+interface AuthLayoutProps {
+    children: React.ReactNode;
+}
+
+export const AuthLayout = ({ children }: AuthLayoutProps) => {
+    const { loggedIn } = useAuth();
+    const router = useRouter();
+
+    useEffect(() => {
+        if (!loggedIn) {
+            router.replace('/login');
+        }
+    }, [loggedIn]);
+
+    if (!loggedIn) {
+        return null;
+    }
+
+    return (
+        <div className="tw-flex tw-flex-col tw-min-h-screen">
+            <Header />
+            <div className="tw-flex tw-flex-1">
+                <Sidebar />
+                <main className="tw-flex-1 tw-p-4">
+                    {children}
+                </main>
+            </div>
+        </div>
+    );
+};
+```
+
+#### Public Layout
+```typescript
+// components/layout/PublicLayout.tsx
+'use client';
+
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import useAuth from '@/hooks/use-auth';
+
+interface PublicLayoutProps {
+    children: React.ReactNode;
+}
+
+export const PublicLayout = ({ children }: PublicLayoutProps) => {
+    const { loggedIn } = useAuth();
+    const router = useRouter();
+
+    useEffect(() => {
+        if (loggedIn) {
+            router.replace('/dashboard');
+        }
+    }, [loggedIn]);
+
+    return (
+        <div className="tw-flex tw-flex-col tw-min-h-screen">
+            <nav className="tw-py-4 tw-px-6 tw-border-b">
+                {/* Public navigation */}
+            </nav>
+            <main className="tw-flex-1 tw-container tw-mx-auto tw-py-8">
+                {children}
+            </main>
+        </div>
+    );
+};
+```
+
+### Role-Based Access
+```typescript
+// hooks/use-role-checker.ts
+import { useSelector } from 'react-redux';
+import { getAuthState } from '@/store/auth';
+
+export const useRoleChecker = () => {
+    const { profile } = useSelector(getAuthState);
+
+    const hasRole = (role: string) => {
+        return profile?.roles?.includes(role) ?? false;
+    };
+
+    const hasAnyRole = (roles: string[]) => {
+        return roles.some(role => hasRole(role));
+    };
+
+    return { hasRole, hasAnyRole };
+};
+
+// Usage in components
+const AdminComponent = () => {
+    const { hasRole } = useRoleChecker();
+    
+    if (!hasRole('admin')) {
+        return null;
+    }
+
+    return (
+        // Admin content
+    );
+};
+```
+
+## Layout System
+
+### Route Groups and Layouts
+```typitten
+// app/(auth)/layout.tsx
+import { redirect } from 'next/navigation';
+import { getSession } from '@/lib/auth/session';
+
+export default async function AuthLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const session = await getSession();
+
+  if (!session) {
+    // Redirect to login if no session exists
+    redirect('/login');
+  }
+
+  return (
+    <div className="tw-min-h-screen">
+      <AuthenticatedLayout session={session}>
+        {children}
+      </AuthenticatedLayout>
+    </div>
+  );
+}
+```
+
+```typescript
+// app/(public)/layout.tsx
+import { redirect } from 'next/navigation';
+import { getSession } from '@/lib/auth/session';
+
+export default async function PublicLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const session = await getSession();
+
+  if (session) {
+    // Redirect to dashboard if session exists
+    redirect('/dashboard');
+  }
+
+  return (
+    <div className="tw-min-h-screen">
+      <PublicLayout>
+        {children}
+      </PublicLayout>
+    </div>
+  );
+}
+```
+
+### Layout Components
+```typescript
+// components/layout/auth/AuthLayout.tsx
+import { Session } from 'next-auth';
+import { Header, Sidebar, Footer } from '@/components/layout/navigation';
+
+interface AuthLayoutProps {
+  session: Session;
+  children: React.ReactNode;
+}
+
+export const AuthenticatedLayout = ({ session, children }: AuthLayoutProps) => {
+  return (
+    <div className="tw-flex tw-flex-col tw-min-h-screen">
+      <Header user={session.user} />
+      <div className="tw-flex tw-flex-1">
+        <Sidebar />
+        <main className="tw-flex-1 tw-p-4">
+          {children}
+        </main>
+      </div>
+      <Footer />
+    </div>
+  );
+};
+```
+
+```typescript
+// components/layout/auth/PublicLayout.tsx
+export const PublicLayout = ({ children }: { children: React.ReactNode }) => {
+  return (
+    <div className="tw-flex tw-flex-col tw-min-h-screen">
+      <nav className="tw-py-4 tw-px-6 tw-border-b">
+        {/* Public navigation */}
+      </nav>
+      <main className="tw-flex-1 tw-container tw-mx-auto tw-py-8">
+        {children}
+      </main>
+      <footer className="tw-py-4 tw-px-6 tw-border-t">
+        {/* Public footer */}
+      </footer>
+    </div>
+  );
+};
+```
+
+## Best Practices
+
+### Type Safety
+1. Use TypeScript for all files
+2. Leverage tRPC for end-to-end type safety
+3. Define proper interfaces and types
+4. Use Zod for runtime validation
+
+### State Management
+1. Use Redux for global application state
+2. Use React Query (via tRPC) for server state
+3. Use local state for component-specific state
+4. Implement proper loading and error states
+
+### Performance
+1. Implement proper code splitting
+2. Use Next.js Image component
+3. Optimize bundle size
+4. Implement proper caching strategies
+
+### Security
+1. Implement proper authentication checks
+2. Use CSRF protection
+3. Implement rate limiting
+4. Sanitize user inputs
+
+### Styling
+1. Use Tailwind classes with 'tw-' prefix
+2. Utilize PrimeFlex for layout
+3. Maintain consistent spacing
+4. Follow responsive design principles
+
+## tRPC Integration
+
+### Core Setup
+
+#### 1. tRPC Provider Configuration
+```typescript
+// utils/trpc-provider.tsx
+'use client'
+
+import { AppRouter } from "@repo/server/src/router/index";
+import { createTRPCProxyClient, httpLink } from "@trpc/client";
+import { TokensStorage } from "./tokens-storage";
+import { TRPCError } from "@trpc/server";
+
+// Environment configuration
+const getUrl = (): string => {
+    return process.env.NEXT_PUBLIC_SERVER_URL!!
+}
+
+// Token management helper
+const tokens = (): { access: string, refresh: string } => {
+    const tk = TokensStorage.getTokens()
+    return {
+        access: tk?.accessToken || '',
+        refresh: tk?.refreshToken || ''
+    }
+}
+
+// Create tRPC client with automatic token refresh
+export const client = createTRPCProxyClient<AppRouter>({
+    links: [
+        httpLink({
+            url: `${getUrl()}`,
+            // Add authorization header to all requests
+            headers() {
+                return {
+                    Authorization: "Bearer " + `${tokens().access}` || ''
+                };
+            },
+            // Custom fetch implementation with token refresh
+            fetch: async (input, options) => {
+                const postData = await fetch(input, options)
+                
+                // Handle non-200 responses
+                if (postData.status !== 200) {
+                    const resp:{error: {data: TRPCError}} = await postData.clone().json()
+                    
+                    // Handle unauthorized errors (expired token)
+                    if (resp.error.data.code === "UNAUTHORIZED") {
+                        const refresh = tokens().refresh
+                        
+                        // Attempt to refresh token
+                        const tk = await fetch(`${getUrl()}/auth.refreshToken`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({ refreshToken: refresh })
+                        }).then(resp => resp.json())
+                        
+                        // Return original error if refresh fails
+                        if (tk.error) return postData
+                        
+                        // Store new tokens
+                        TokensStorage.setTokens(tk.result.data.tokens.access, tk.result.data.tokens.refresh)
+
+                        // Retry original request with new token
+                        return fetch(input, {
+                            ...options,
+                            headers: {
+                                ...options?.headers,
+                                Authorization: `Bearer ${tk.result.data.tokens.access}`,
+                            },
+                        })
+                    }
+                    return postData
+                }
+                return postData
+            }
+        }),
+    ],
+})
+```
+
+#### 2. Token Storage Implementation
+```typescript
+// utils/tokens-storage.ts
+export class TokensStorage {
+    private static ACCESS_TOKEN_KEY = 'access_token';
+    private static REFRESH_TOKEN_KEY = 'refresh_token';
+
+    // Store tokens in localStorage
+    static setTokens(accessToken: string, refreshToken: string) {
+        localStorage.setItem(this.ACCESS_TOKEN_KEY, accessToken);
+        localStorage.setItem(this.REFRESH_TOKEN_KEY, refreshToken);
+    }
+
+    // Retrieve tokens from localStorage
+    static getTokens() {
+        if (typeof window === 'undefined') return null;
+        
+        const accessToken = localStorage.getItem(this.ACCESS_TOKEN_KEY);
+        const refreshToken = localStorage.getItem(this.REFRESH_TOKEN_KEY);
+
+        if (!accessToken || !refreshToken) return null;
+
+        return {
+            accessToken,
+            refreshToken
+        };
+    }
+
+    // Clear tokens from localStorage
+    static clearTokens() {
+        localStorage.removeItem(this.ACCESS_TOKEN_KEY);
+        localStorage.removeItem(this.REFRESH_TOKEN_KEY);
+    }
+}
+```
+
+### Making API Calls
+
+#### Query vs Mutation Usage Rules
+
+> **IMPORTANT**: The distinction between `.query()` and `.mutate()` is critical:
+> - Use `.query()` ONLY when fetching data without sending any parameters in the request body
+> - Use `.mutate()` whenever you need to send ANY data to the server, even for GET requests with body parameters
+> - When in doubt, use `.mutate()` if you're passing any data to the endpoint
+
+#### 1. Query Examples (Fetching Data Without Body Parameters)
+```typescript
+// Correct: Simple fetch without parameters
+const fetchUserProfile = async () => {
+    try {
+        // ✅ Correct: No data being sent, using .query()
+        const profile = await client.users.getProfile.query();
+        return profile;
+    } catch (error) {
+        handleError(error);
+    }
+};
+
+// Correct: Using URL parameters (not body parameters)
+const fetchUserById = async (userId: string) => {
+    try {
+        // ✅ Correct: URL parameter, using .query()
+        const user = await client.users.getById.query({ userId });
+        return user;
+    } catch (error) {
+        handleError(error);
+    }
+};
+
+// Incorrect: Don't use query when sending filter parameters in body
+const incorrectFilteredPosts = async (filters: PostFilters) => {
+    // ❌ Wrong: Sending data in body, should use .mutate()
+    const posts = await client.posts.filtered.query(filters);
+};
+
+// Correct: Use mutate when sending filter parameters
+const correctFilteredPosts = async (filters: PostFilters) => {
+    // ✅ Correct: Sending data in body, using .mutate()
+    const posts = await client.posts.filtered.mutate(filters);
+};
+```
+
+#### 2. Mutation Examples (Sending Data to Server)
+```typescript
+// Example: Create new resource
+const createUser = async (data: CreateUserInput) => {
+    try {
+        // ✅ Correct: Sending data, using .mutate()
+        const user = await client.users.create.mutate(data);
+        return user;
+    } catch (error) {
+        handleError(error);
+    }
+};
+
+// Example: Update existing resource
+const updateProfile = async (data: UpdateProfileInput) => {
+    try {
+        // ✅ Correct: Sending data, using .mutate()
+        const updated = await client.users.updateProfile.mutate(data);
+        return updated;
+    } catch (error) {
+        handleError(error);
+    }
+};
+
+// Example: Search with filters (sends data in body)
+const searchUsers = async (searchParams: UserSearchParams) => {
+    try {
+        // ✅ Correct: Sending search parameters in body, using .mutate()
+        const results = await client.users.search.mutate(searchParams);
+        return results;
+    } catch (error) {
+        handleError(error);
+    }
+};
+
+// Example: Complex filtering
+const getFilteredData = async (filters: FilterParams) => {
+    try {
+        // ✅ Correct: Sending filter parameters in body, using .mutate()
+        const data = await client.data.getFiltered.mutate(filters);
+        return data;
+    } catch (error) {
+        handleError(error);
+    }
+};
+```
+
+#### Common Gotchas and Examples
+
+```typescript
+// 1. Pagination with query parameters (URL params)
+const getPagedData = async (page: number, limit: number) => {
+    try {
+        // ✅ Correct: URL parameters, using .query()
+        return await client.data.getPaged.query({ page, limit });
+    } catch (error) {
+        handleError(error);
+    }
+};
+
+// 2. Pagination with complex filters (body params)
+const getPagedFilteredData = async (page: number, filters: FilterParams) => {
+    try {
+        // ✅ Correct: Complex parameters in body, using .mutate()
+        return await client.data.getPagedFiltered.mutate({ 
+            page, 
+            filters 
+        });
+    } catch (error) {
+        handleError(error);
+    }
+};
+
+// 3. Simple ID-based fetch
+const getItemById = async (id: string) => {
+    try {
+        // ✅ Correct: Simple URL parameter, using .query()
+        return await client.items.getById.query({ id });
+    } catch (error) {
+        handleError(error);
+    }
+};
+
+// 4. Multiple IDs fetch (array in body)
+const getItemsByIds = async (ids: string[]) => {
+    try {
+        // ✅ Correct: Array in body, using .mutate()
+        return await client.items.getByIds.mutate({ ids });
+    } catch (error) {
+        handleError(error);
+    }
+};
+```
+
+### Best Practices for Query vs Mutation
+
+1. **When to Use Query**
+   - Fetching a resource by ID in URL
+   - Getting a list with simple URL parameters
+   - Retrieving user profile without parameters
+   - Simple GET requests without body
+
+2. **When to Use Mutate**
+   - Creating new resources
+   - Updating existing resources
+   - Deleting resources
+   - Complex searches with filters in body
+   - Any request sending data in body
+   - Batch operations
+   - File uploads
+   - Any form submissions
+
+3. **Decision Flowchart**
+   ```
+   Is sending data in request body? → Yes → Use .mutate()
+                                   → No  → Use .query()
+   ```
+
+4. **Common Patterns**
+   - Always use `.mutate()` for POST, PUT, PATCH, DELETE operations
+   - Always use `.mutate()` when sending arrays or objects
+   - Use `.query()` only for simple GET requests without body
+   - When in doubt, prefer `.mutate()`
+
+### Comprehensive Error Handling
+
+```typescript
+// Comprehensive error handling example
+const handleApiCall = async <T>(
+    apiCall: () => Promise<T>,
+    errorContext: string
+): Promise<T> => {
+    try {
+        return await apiCall();
+    } catch (error) {
+        if (error instanceof TRPCError) {
+            switch (error.code) {
+                case 'UNAUTHORIZED':
+                    // Handle authentication errors
+                    throw new Error('Please log in to continue');
+                case 'FORBIDDEN':
+                    // Handle permission errors
+                    throw new Error('You do not have permission to perform this action');
+                case 'NOT_FOUND':
+                    // Handle not found errors
+                    throw new Error('The requested resource was not found');
+                case 'TIMEOUT':
+                    // Handle timeout errors
+                    throw new Error('The request timed out. Please try again');
+                default:
+                    // Handle other tRPC errors
+                    throw new Error(`An error occurred while ${errorContext}`);
+            }
+        }
+        // Handle non-tRPC errors
+        throw new Error(`An unexpected error occurred while ${errorContext}`);
+    }
+};
+
+// Usage example
+const getUserData = async (userId: string) => {
+    return handleApiCall(
+        () => client.users.getById.query({ userId }),
+        'fetching user data'
+    );
+};
+```

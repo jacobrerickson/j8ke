@@ -1,0 +1,100 @@
+{
+  "version": "0.2.0",
+  "compounds": [
+    {
+      "name": "Debug Start All",
+      "configurations": [
+        "Server",
+        "Web"
+      ],
+      "stopAll": true
+    },
+    {
+      "name": "Debug Start Web",
+      "configurations": [
+        "Web",
+        "Next.js"
+      ],
+      "stopAll": true
+    }
+  ],
+  "configurations": [
+    {
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "pnpm dev",
+      "name": "Start Nextjs",
+      "sourceMaps": true,
+      "cwd": "${workspaceFolder}/apps/web",
+      "sourceMapPathOverrides": {
+        "/turbopack/[project]/*": "${webRoot}/*"
+      },
+      "presentation": {
+        "hidden": true
+      }
+    },
+    {
+      "name": "Next.js",
+      "type": "chrome",
+      "request": "launch",
+      "url": "http://localhost:3010",
+      "cwd": "${workspaceFolder}/apps/web",
+      "sourceMaps": true,
+    },
+    {
+      "name": "Classification",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "python worker.py",
+      "cwd": "${workspaceFolder}/packages/worker/src/classification",
+    },
+    {
+      "name": "Input Processing",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "python worker.py",
+      "cwd": "${workspaceFolder}/packages/worker/src/input-processing",
+    },
+    {
+      "name": "Server",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "pnpm run dev",
+      "cwd": "${workspaceFolder}/packages/server",
+    },
+    {
+      "name": "Web",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "pnpm run dev",
+      "cwd": "${workspaceFolder}/apps/web"
+    },
+    {
+      "name": "Attach",
+      "port": 3010,
+      "request": "attach",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "type": "node"
+    },
+    {
+      "name": "Web - Debugging with Source Maps",
+      "type": "chrome",
+      "request": "launch",
+      "url": "http://localhost:3010",
+      "webRoot": "${workspaceFolder}/apps/web",
+      "sourceMaps": true,
+      "trace": true
+    },
+    {
+      "name": "Web - Debugging with Source Maps",
+      "type": "chrome",
+      "request": "launch",
+      "url": "http://localhost:3010",
+      "webRoot": "${workspaceFolder}/apps/web",
+      "sourceMaps": true,
+      "trace": true
+    }
+  ]
+}

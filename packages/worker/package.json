@@ -1,0 +1,19 @@
+{
+    "name": "@repo/worker",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+      "withenv": "dotenv -e ../../.env --",
+      "copy": "cp ../../.env .env",
+      "compose": "pnpm copy && docker compose up ai-agent -d --build",
+      "dev": "docker logs -f worker-ai-agent-1"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+      "@repo/eslint-config": "workspace:*",
+      "dotenv": "^16.4.5"
+    }
+  }

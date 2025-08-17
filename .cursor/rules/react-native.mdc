@@ -1,0 +1,475 @@
+---
+description: react native / mobile
+globs: 
+alwaysApply: false
+---
+---
+description: react-native
+globs: 
+alwaysApply: false
+---
+Description: React Native Mobile App Implementation Guide
+
+NEVER USE <KeyboardAvoidingView>!!!!!!!!! IT SUCKS!!!!! Instead use the custom KAV component described below
+
+Project Structure:
+```
+apps/native/
+├── app/                    # Screens using Expo Router
+│   ├── (auth)/            # Authentication screens
+│   │   ├── sign-up.tsx
+│   │   └── enter-code.tsx
+│   ├── (tabs)/            # Main tab screens
+│   │   ├── _layout.tsx    # Tab navigation setup
+│   │   ├── home.tsx
+│   │   ├── messages.tsx
+│   │   └── profile.tsx
+│   ├── chat.tsx           # Individual chat screen
+│   ├── details.tsx        # User details screen
+│   └── _layout.tsx        # Root layout with providers
+├── components/            # Reusable components
+│   ├── ui/               # Base UI components
+│   │   ├── button.tsx
+│   │   └── input.tsx
+│   └── UserCard.tsx      # Feature components
+├── store/                # Redux state management
+│   ├── auth.ts          # Auth slice
+│   ├── index.ts         # Store configuration
+│   └── use-auth-store.ts # Custom auth hooks
+├── utils/               # Utility functions
+│   ├── trpc-provider.tsx # API client setup
+│   ├── socket-provider.tsx # Socket.io setup
+│   └── async-storage.ts  # Local storage
+└── assets/              # Images, fonts, etc.
+```
+
+Required Packages:
+```json
+{
+  "dependencies": {
+    "@gluestack-ui/themed": "^0.1.0",
+    "@reduxjs/toolkit": "^1.9.5",
+    "@tanstack/react-query": "^4.32.6",
+    "@trpc/client": "^10.37.1",
+    "@trpc/react-query": "^10.37.1",
+    "expo": "~49.0.5",
+    "expo-image-manipulator": "~11.3.0",
+    "expo-image-picker": "~14.3.2",
+    "expo-linking": "~5.0.2",
+    "expo-location": "~16.1.0",
+    "expo-router": "2.0.0",
+    "nativewind": "^2.0.11",
+    "react-native-safe-area-context": "4.6.3",
+    "socket.io-client": "^4.7.2",
+    "tailwindcss": "3.3.2"
+  }
+}
+```
+
+Setup Instructions:
+
+1. Project Initialization:
+```bash
+# Create new Expo app with TypeScript
+npx create-expo-app@latest -e with-router
+
+# Install required dependencies
+pnpm add @gluestack-ui/themed @reduxjs/toolkit @trpc/client @trpc/react-query
+pnpm add socket.io-client nativewind tailwindcss
+pnpm add -D @types/react-native
+
+# Install Expo packages
+npx expo install expo-image-picker expo-image-manipulator expo-location
+```
+
+2. Configuration Files:
+
+tailwind.config.js:
+```javascript
+module.exports = {
+  content: ["./app/**/*.{js,jsx,ts,tsx}", "./components/**/*.{js,jsx,ts,tsx}"],
+  theme: {
+    extend: {},
+  },
+  plugins: [],
+}
+```
+
+babel.config.js:
+```javascript
+module.exports = function (api) {
+  api.cache(true);
+  return {
+    presets: ['babel-preset-expo'],
+    plugins: [
+      'nativewind/babel',
+      require.resolve('expo-router/babel'),
+    ],
+  };
+};
+```
+
+API Integration:
+
+1. TRPC Setup:
+```typescript
+// utils/trpc-provider.tsx
+import { createTRPCReact } from '@trpc/react-query';
+import type { AppRouter } from '@repo/server';
+
+export const trpc = createTRPCReact<AppRouter>();
+
+export const client = trpc.createClient({
+    links: [
+        httpBatchLink({
+            url: process.env.EXPO_PUBLIC_SERVER_URL!,
+            async headers() {
+                const token = await Storage.get(Storage.keys.AUTH_TOKEN);
+                return {
+                    Authorization: token ? `Bearer ${token}` : '',
+                };
+            },
+        }),
+    ],
+});
+```
+
+
+2. Making API Calls:
+```typescript
+// QUERIES - Use .query() ONLY for fetching data without body/header params
+// Example: Getting user profile, listing items, etc.
+const fetchUsers = async () => {
+    try {
+        // Simple GET request - use .query()
+        const users = await client.users.getAll.query();
+        return users;
+    } catch (error) {
+        console.error('Error fetching users:', error);
+        throw error;
+    }
+};
+
+// MUTATIONS - Use .mutate() for ANY request that sends data
+// Examples: Creating, updating, deleting, or any request with body/header params
+// When using mutate, the data always needs to be in JSON format, it CANNOT ONLY BE A VALUE
+const examples = {
+    // Creating new data
+    createUser: async (userData: UserData) => {
+        try {
+            await client.users.create.mutate(userData);
+        } catch (error) {
+            console.error('Error creating user:', error);
+            throw error;
+        }
+    },
+
+    // Updating data
+    updateProfile: async (updateData: UpdateData) => {
+        try {
+            await client.users.updateUser.mutate(updateData);
+        } catch (error) {
+            console.error('Error updating profile:', error);
+            throw error;
+        }
+    },
+
+    // Even for GET requests with params, use .mutate()
+    getUserById: async (id: string) => {
+        try {
+            await client.users.getById.mutate({ id });
+        } catch (error) {
+            console.error('Error fetching user:', error);
+            throw error;
+        }
+    },
+
+    // Authentication
+    signIn: async (credentials: Credentials) => {
+        try {
+            await client.auth.signin.mutate(credentials);
+        } catch (error) {
+            console.error('Error signing in:', error);
+            throw error;
+        }
+    }
+};
+
+```
+
+3. Socket Integration:
+```typescript
+// utils/socket-provider.tsx
+export function SocketProvider({ children }: { children: React.ReactNode }) {
+    const [socket, setSocket] = useState<Socket | null>(null);
+    const authToken = useSelector(getAuthStateValue("tokens"))?.access;
+
+    useEffect(() => {
+        if (!authToken) return;
+
+        const socketInstance = io(process.env.EXPO_PUBLIC_SERVER_URL!, {
+            auth: { token: authToken },
+            transports: ['websocket'],
+            autoConnect: false
+        });
+
+        socketInstance.connect();
+        setSocket(socketInstance);
+
+        return () => {
+            socketInstance.disconnect();
+        };
+    }, [authToken]);
+
+    return (
+        <SocketContext.Provider value={{ socket }}>
+            {children}
+        </SocketContext.Provider>
+    );
+}
+```
+
+State Management:
+
+1. Redux Store Setup:
+```typescript
+// store/index.ts
+import { configureStore } from '@reduxjs/toolkit';
+import authReducer from './auth';
+
+export const store = configureStore({
+    reducer: {
+        auth: authReducer
+    }
+});
+```
+
+2. Custom Hooks:
+```typescript
+// Example custom hook for auth
+export function useAuth() {
+    const profile = useSelector(getAuthStateValue("profile"));
+    const { signOut } = useAuthStore();
+
+    return {
+        profile,
+        signOut,
+        isAuthenticated: !!profile
+    };
+}
+```
+
+UI Components:
+
+1. Base Component Template:
+```typescript
+interface ButtonProps {
+    onPress: () => void;
+    children: React.ReactNode;
+    disabled?: boolean;
+}
+
+export function Button({ onPress, children, disabled }: ButtonProps) {
+    return (
+        <Pressable
+            onPress={onPress}
+            disabled={disabled}
+            className={`px-4 py-2 bg-blue-500 rounded-lg
+                ${disabled ? 'opacity-50' : ''}`}
+        >
+            <Text className="text-white font-medium">{children}</Text>
+        </Pressable>
+    );
+}
+```
+
+2. Screen Template:
+```typescript
+export default function HomeScreen() {
+    const { profile } = useAuth();
+    const [data, setData] = useState<Data[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        fetchData();
+    }, []);
+
+    return (
+        <SafeAreaView className="flex-1 bg-white">
+            <View className="p-4">
+                <Text className="text-2xl font-bold">
+                    Welcome, {profile?.name}
+                </Text>
+            </View>
+            {loading ? (
+                <Spinner size="large" />
+            ) : (
+                <FlatList
+                    data={data}
+                    renderItem={renderItem}
+                    keyExtractor={item => item.id}
+                />
+            )}
+        </SafeAreaView>
+    );
+}
+```
+
+---
+title: 'Keyboard Avoiding View'
+description: 'A reusable component that handles keyboard interactions and animations in React Native'
+---
+
+# Keyboard Avoiding View
+
+The Keyboard Avoiding View (KAV) is a custom component that provides a consistent and smooth keyboard interaction experience across all screens. Instead of using React Native's built-in `KeyboardAvoidingView`, use this component to get automatic keyboard handling with animations.
+
+## Features
+
+- Smooth animations when keyboard appears/disappears
+- Automatic keyboard dismissal on outside tap
+- Customizable offset for content movement
+- Consistent behavior across all screens
+- Built-in TypeScript support
+
+## Usage
+
+```tsx
+import { KAV } from "@/components/ui/keyboard-avoiding-view";
+
+export default function YourScreen() {
+  return (
+    <KAV>
+      <View>
+        {/* Your content here */}
+      </View>
+    </KAV>
+  );
+}
+```
+
+### With Custom Offset
+
+```tsx
+// Use a larger offset for screens with more content
+<KAV offset={3}>
+  <View>
+    {/* Your content here */}
+  </View>
+</KAV>
+```
+
+## Props
+
+| Prop     | Type         | Default | Description                                                    |
+|----------|--------------|---------|----------------------------------------------------------------|
+| children | ReactNode    | -       | The content to be rendered inside the keyboard avoiding view    |
+| offset   | number       | 1.5     | Controls how much the content moves up when keyboard appears    |
+
+## Implementation
+
+If the component doesn't exist in your codebase, create it at `components/ui/keyboard-avoiding-view/index.tsx` with the following code:
+
+```tsx
+import React, { useEffect, useRef } from 'react';
+import { TouchableWithoutFeedback, Keyboard, Animated, ViewStyle, StyleProp } from 'react-native';
+
+interface KAVProps {
+  children: React.ReactNode;
+  offset?: number;
+  style?: StyleProp<ViewStyle>;
+}
+
+export function KAV({ children, offset = 1.5, style }: KAVProps) {
+  const translateY = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    const showSubscription = Keyboard.addListener('keyboardWillShow', (e) => {
+      Animated.timing(translateY, {
+        toValue: -e.endCoordinates.height / offset,
+        duration: e.duration,
+        useNativeDriver: true,
+      }).start();
+    });
+
+    const hideSubscription = Keyboard.addListener('keyboardWillHide', (e) => {
+      Animated.timing(translateY, {
+        toValue: 0,
+        duration: e.duration,
+        useNativeDriver: true,
+      }).start();
+    });
+
+    return () => {
+      showSubscription.remove();
+      hideSubscription.remove();
+    };
+  }, [offset]);
+
+  return (
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+
+        <Animated.View 
+          className="flex-1 justify-center bg-primary-50"
+          style={[{
+            transform: [{ translateY }]
+          }, style]}
+        >
+          {children}
+        </Animated.View>
+    </TouchableWithoutFeedback>
+  );
+} 
+```
+
+## Best Practices
+
+1. Use KAV as the top-level wrapper for screens that contain input fields
+2. Adjust the offset prop based on your content:
+   - Use default (1.5) for most screens
+   - Use larger values (2-3) for screens with more content
+   - Use smaller values (1-1.5) for screens with minimal content
+3. Don't nest multiple KAV components
+4. Ensure your content is properly centered within the KAV component
+
+5. Performance:
+- Use `useMemo` and `useCallback` for expensive computations
+- Implement proper list virtualization with FlatList
+- Optimize image loading with caching
+- Minimize re-renders with proper dependency arrays
+
+2. TypeScript:
+- Use strict type checking
+- Avoid `any` type
+- Create proper interfaces for all props
+- Use type inference where possible
+
+3. Navigation:
+- Use Expo Router for type-safe navigation
+- Implement proper deep linking
+- Handle navigation state persistence
+- Use proper navigation patterns (tabs, stacks)
+
+4. Error Handling:
+- Implement proper error boundaries
+- Handle API errors gracefully
+- Show user-friendly error messages
+- Log errors for debugging
+
+5. Testing:
+- Write unit tests for utilities
+- Test components in isolation
+- Implement E2E testing with Maestro
+- Test on both iOS and Android
+
+6. Security:
+- Secure sensitive data storage
+- Implement proper authentication flow
+- Handle token refresh
+- Validate all user inputs
+
+7. Styling:
+- Use NativeWind for consistent styling
+- Implement proper dark mode support
+- Handle different screen sizes
+- Use proper accessibility attributes

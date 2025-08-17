@@ -1,0 +1,74 @@
+{
+  "$schema": "https://turborepo.org/schema.json",
+  "ui": "tui",
+  "tasks": {
+    "build": {
+      "outputs": [
+        ".next/**",
+        "!.next/cache/**",
+        "dist/**"
+      ]
+    },
+    "start": {},
+    "dev": {
+      "persistent": true,
+      "cache": false
+    },
+    "logs": {
+      "persistent": true,
+      "cache": false
+    },
+    "puller": {
+      "persistent": true,
+      "cache": false
+    },
+    "dashboard": {
+      "persistent": true,
+      "cache": false
+    },
+    "clogs": {
+      "persistent": true,
+      "cache": false
+    },
+    "format": {
+      "outputs": ["node_modules/.cache/.prettiercache"],
+      "outputLogs": "new-only"
+    },
+    "lint": {
+      "dependsOn": ["^topo", "^build"],
+      "outputs": ["node_modules/.cache/.eslintcache"]
+    },
+    "typecheck": {
+      "dependsOn": ["^topo", "^build"],
+      "outputs": ["node_modules/.cache/tsbuildinfo.json"]
+    },
+    "clean": {
+      "cache": false
+    },
+    "//#clean": {
+      "cache": false
+    },
+    "push": {
+      "cache": false,
+      "interactive": true
+    },
+    "studio": {
+      "cache": false,
+      "persistent": true
+    },
+    "ui-add": {
+      "cache": false,
+      "interactive": true
+    }
+  },
+  "globalEnv": [
+    "CLOUD_NAME",
+    "CLOUD_KEY",
+    "CLOUD_SECRET",
+    "VERIFICATION_LINK",
+    "JWT_SECRET",
+    "MAIL_TRAP_USER",
+    "MAIL_TRAP_PASSWORD",
+    "NEXT_PUBLIC_GOOGLE_CLIENT_ID"
+  ]
+}

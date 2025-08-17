@@ -1,0 +1,185 @@
+---
+description: Icons
+globs: 
+---
+# Ant Design Icons Usage Guide
+
+## Installation
+
+```bash
+# Install @expo/vector-icons which includes Ant Design icons
+pnpm add @expo/vector-icons
+```
+
+## Basic Usage
+
+```typescript
+import { AntDesign } from '@expo/vector-icons';
+
+// Basic icon usage
+<AntDesign name="search1" size={20} color="#666" />
+```
+
+## Common Icon Examples
+
+### Navigation Icons
+```typescript
+// Tab Navigation
+<AntDesign name="home" size={28} color={color} />      // Home tab
+<AntDesign name="message1" size={28} color={color} />  // Messages tab
+<AntDesign name="user" size={28} color={color} />      // Profile tab
+
+// Header Navigation
+<AntDesign name="left" size={28} color="#000" />       // Back button
+<AntDesign name="plus" size={24} color="white" />      // Add new
+```
+
+### Action Icons
+```typescript
+// Search
+<AntDesign name="search1" size={20} color="#666" />    // Search input
+
+// Camera/Photo
+<AntDesign name="camera" size={24} color="#666" />     // Camera action
+
+// Messages
+<AntDesign name="message1" size={24} color="#000" />   // Message action
+```
+
+## Styling with NativeWind
+
+### Basic Container Styling
+```typescript
+<View className="flex items-center">
+    <AntDesign name="search1" size={20} color="#666" />
+</View>
+```
+
+### Button with Icon
+```typescript
+<Pressable className="flex-row items-center justify-center gap-2">
+    <AntDesign name="plus" size={24} color="white" />
+    <Text className="text-white">Add New</Text>
+</Pressable>
+```
+
+### Search Bar with Icon
+```typescript
+<View className="flex-row items-center bg-gray-100 rounded-xl px-4 py-3">
+    <AntDesign name="search1" size={20} color="#666" />
+    <TextInput
+        className="flex-1 ml-2 text-base"
+        placeholder="Search..."
+    />
+</View>
+```
+
+## Best Practices
+
+1. **Consistent Sizing**
+   - Navigation icons: 24-28px
+   - Action icons: 20-24px
+   - Small indicators: 16-20px
+
+2. **Color Usage**
+   - Use semantic colors (e.g., text-gray-500)
+   - Use opacity for disabled states
+   - Maintain contrast ratios for accessibility
+
+3. **Alignment**
+   - Always use flex containers with proper alignment
+   - Use gap or margin for spacing between icon and text
+   - Center icons vertically using items-center
+
+4. **Touch Targets**
+   - Wrap icons in Pressable for interactions
+   - Ensure minimum touch target size (44x44 points)
+   - Add proper padding around icons
+
+## Common Icon Names Reference
+
+### Navigation
+- `home` - Home screen
+- `user` - Profile/User
+- `message1` - Messages/Chat
+- `setting` - Settings
+- `left` - Back navigation
+- `right` - Forward navigation
+
+### Actions
+- `plus` - Add new
+- `search1` - Search
+- `camera` - Camera/Photo
+- `edit` - Edit
+- `delete` - Delete
+- `check` - Confirm/Complete
+- `close` - Close/Cancel
+
+### Status
+- `checkcircle` - Success
+- `exclamationcircle` - Warning
+- `infocircle` - Information
+- `closecircle` - Error
+
+## Troubleshooting
+
+1. **Icons Not Displaying**
+   - Verify @expo/vector-icons is properly installed
+   - Check icon name spelling (case-sensitive)
+   - Ensure proper import statement
+
+2. **Alignment Issues**
+   - Use flex container with items-center
+   - Check parent container padding/margin
+   - Verify icon size is appropriate for container
+
+3. **Performance**
+   - Import only AntDesign to reduce bundle size
+   - Use memo for frequently re-rendered icons
+   - Consider caching icon components
+
+## Example Components
+
+### IconButton Component
+```typescript
+interface IconButtonProps {
+    name: string;
+    size?: number;
+    color?: string;
+    onPress?: () => void;
+}
+
+export function IconButton({ name, size = 24, color = "#000", onPress }: IconButtonProps) {
+    return (
+        <Pressable 
+            className="p-2 rounded-full active:opacity-70"
+            onPress={onPress}
+        >
+            <AntDesign name={name} size={size} color={color} />
+        </Pressable>
+    );
+}
+```
+
+### SearchInput Component
+```typescript
+interface SearchInputProps {
+    value: string;
+    onChangeText: (text: string) => void;
+    placeholder?: string;
+}
+
+export function SearchInput({ value, onChangeText, placeholder = "Search..." }: SearchInputProps) {
+    return (
+        <View className="flex-row items-center bg-gray-100 rounded-xl px-4 py-3">
+            <AntDesign name="search1" size={20} color="#666" />
+            <TextInput
+                className="flex-1 ml-2 text-base"
+                placeholder={placeholder}
+                value={value}
+                onChangeText={onChangeText}
+            />
+        </View>
+    );
+}
+``` 

@@ -1,0 +1,16 @@
+{
+  "extends": "@repo/tsconfig/base.json",
+  "compilerOptions": {
+    "jsx": "react",
+    "outDir": "dist",
+    "rootDir": "src"
+  },
+  "include": [
+    "src/**/*.ts",
+    "src/utils/mail/mail.tsx",
+    "src/utils/mail/emailComponents.tsx",
+  ],
+  "exclude": [
+    "src/**/*.js"
+  ]
+}
