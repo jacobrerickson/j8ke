@@ -20,7 +20,7 @@ export default function PublicLayout({
                         {/* Left - Logo */}
                         <div className="tw-flex-shrink-0">
                             <Link href="/" className="tw-text-xl tw-font-semibold tw-text-blue-600">
-                                Template
+                                Jacob Erickson
                             </Link>
                         </div>
 
@@ -44,6 +44,15 @@ export default function PublicLayout({
                                         }`}
                                 >
                                     About
+                                </Link>
+                                <Link
+                                    href="/form"
+                                    className={`tw-text-sm tw-font-medium ${pathname === "/form"
+                                        ? "tw-text-blue-600"
+                                        : "tw-text-gray-700 hover:tw-text-gray-900"
+                                        }`}
+                                >
+                                    Form
                                 </Link>
                             </div>
                         </div>
@@ -82,7 +91,7 @@ export default function PublicLayout({
                 <div className="tw-mx-auto tw-max-w-7xl tw-px-4 tw-py-12 sm:tw-px-6 lg:tw-px-8">
                     <div className="tw-text-center">
                         <p className="tw-text-sm tw-text-gray-500">
-                            © {new Date().getFullYear()} Template. All rights reserved.
+                            © {new Date().getFullYear()} Jacob Erickson. All rights reserved.
                         </p>
                     </div>
                 </div>

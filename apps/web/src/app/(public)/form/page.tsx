@@ -436,12 +436,6 @@ Would you like to test a submission with the current field IDs?
           Automate your daily contest entries - 7 submissions per day with
           different selection options
         </p>
-        <div className="tw-mt-2 tw-p-3 tw-bg-green-50 tw-border tw-border-green-200 tw-rounded-md">
-          <p className="tw-text-sm tw-text-green-800">
-            ✅ <strong>Backend Integration:</strong> Now using tRPC for secure
-            form submissions through your server
-          </p>
-        </div>
       </div>
 
       <div className="tw-grid tw-grid-cols-1 lg:tw-grid-cols-2 tw-gap-6">
@@ -477,7 +471,7 @@ Would you like to test a submission with the current field IDs?
                   </p>
                 )}
               </div>
-
+              {!(googleFormUrl && extractFormId(googleFormUrl)) && (
               <div>
                 <label className="tw-block tw-text-sm tw-font-medium tw-mb-2">
                   Manual Form ID (Optional)
@@ -493,7 +487,7 @@ Would you like to test a submission with the current field IDs?
                   If automatic detection fails, manually enter the form ID from
                   your URL
                 </p>
-              </div>
+              </div>)}
 
               <div>
                 <label className="tw-block tw-text-sm tw-font-medium tw-mb-2">
@@ -516,25 +510,11 @@ Would you like to test a submission with the current field IDs?
                 <ol className="tw-text-sm tw-text-blue-700 tw-space-y-1 tw-list-decimal tw-list-inside">
                   <li>Enter your Google Form URL above</li>
                   <li>
-                    Click &quot;Debug Form Fields&quot; for manual detection
-                    guide
-                  </li>
-                  <li>
-                    <strong>Manual Method:</strong> Right-click on your Google
-                    Form and select &quot;View Page Source&quot;
-                  </li>
-                  <li>
                     Search for &quot;entry.&quot; to find field IDs (e.g.,
                     entry.1234567890)
                   </li>
                   <li>Update the field IDs below to match your form</li>
-                  <li>Test with a single submission first</li>
                 </ol>
-                <div className="tw-mt-3 tw-p-2 tw-bg-blue-100 tw-rounded tw-text-xs">
-                  <strong>💡 Tip:</strong> The debug tool will now guide you
-                  through manual field ID detection since CORS prevents
-                  automatic detection.
-                </div>
               </div>
 
               <div className="tw-bg-yellow-50 tw-border tw-border-yellow-200 tw-rounded-md tw-p-3">
@@ -817,52 +797,6 @@ Would you like to test a submission with the current field IDs?
               </div>
             </div>
           </div>
-
-          {/* <div className="tw-bg-white tw-border tw-rounded-lg tw-shadow-sm">
-            <div className="tw-p-6 tw-border-b">
-              <h3 className="tw-text-lg tw-font-semibold tw-flex tw-items-center tw-gap-2">
-                <span className="tw-w-5 tw-h-5 tw-bg-gray-200 tw-rounded tw-flex tw-items-center tw-justify-center">
-                  📋
-                </span>
-                Selection Options (Automatic)
-              </h3>
-              <p className="tw-text-sm tw-text-gray-600 tw-mt-1">
-                The tool automatically cycles through all 7 options from your
-                form
-              </p>
-            </div>
-            <div className="tw-p-6 tw-space-y-3">
-              <div className="tw-bg-blue-50 tw-border tw-border-blue-200 tw-rounded-md tw-p-3">
-                <p className="tw-text-sm tw-text-blue-700">
-                  The tool will automatically cycle through all 7 selection
-                  options from your Google Form. Each submission will use a
-                  different option.
-                </p>
-                <div className="tw-mt-2 tw-p-2 tw-bg-blue-100 tw-rounded tw-text-xs">
-                  <strong>⚠️ Important:</strong> You need to replace the
-                  placeholder option names below with the actual option names
-                  from your Google Form. The current names are just examples.
-                </div>
-              </div>
-              <div className="tw-grid tw-grid-cols-2 tw-gap-2 tw-text-sm">
-                {[
-                  ACTUAL_OPTIONS,
-                ].map((option, index) => (
-                  <div
-                    key={index}
-                    className="tw-flex tw-items-center tw-gap-2 tw-p-2 tw-bg-gray-50 tw-rounded"
-                  >
-                    <span className="tw-text-sm tw-font-medium tw-w-8">
-                      #{index + 1}:
-                    </span>
-                    <span className="tw-text-sm tw-text-gray-600">
-                      {option}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div> */}
         </div>
 
         {/* Control Panel */}
@@ -904,24 +838,11 @@ Would you like to test a submission with the current field IDs?
                   Generate 7 Submissions
                 </button>
                 <button
-                  onClick={debugFormFields}
-                  disabled={isTesting}
-                  className="tw-px-4 tw-py-2 tw-border tw-border-blue-300 tw-rounded-md hover:tw-bg-blue-50 tw-text-blue-600 tw-text-sm disabled:tw-opacity-50"
-                >
-                  {isTesting ? "🔄 Testing..." : "🔍 Debug Form Fields"}
-                </button>
-                <button
                   onClick={verifyFormSubmission}
                   disabled={isVerifying}
                   className="tw-px-4 tw-py-2 tw-border tw-border-purple-300 tw-rounded-md hover:tw-bg-purple-50 tw-text-purple-600 tw-text-sm disabled:tw-opacity-50"
                 >
                   {isVerifying ? "🔄 Verifying..." : "🔍 Verify Submission"}
-                </button>
-                <button
-                  onClick={copyFormData}
-                  className="tw-px-4 tw-py-2 tw-border tw-border-gray-300 tw-rounded-md hover:tw-bg-gray-50 tw-text-sm"
-                >
-                  📋 Copy Data
                 </button>
                 <button
                   onClick={resetForNewDay}

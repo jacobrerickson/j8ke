@@ -6,10 +6,10 @@ export default function About() {
             <div className="tw-mx-auto tw-max-w-7xl tw-px-6 lg:tw-px-8">
                 <div className="tw-mx-auto tw-max-w-2xl">
                     <h1 className="tw-text-4xl tw-font-bold tw-tracking-tight tw-text-gray-900 sm:tw-text-6xl">
-                        About Template
+                        About Me
                     </h1>
                     <p className="tw-mt-6 tw-text-lg tw-leading-8 tw-text-gray-600">
-                        A modern, full-stack application template built with cutting-edge technologies.
+                        I&apos;m a software engineer with a passion for building products that help people live better lives.
                     </p>
 
                     <div className="tw-mt-16 tw-space-y-16">
