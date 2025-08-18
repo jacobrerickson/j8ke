@@ -11,11 +11,11 @@ export default function PublicLayout({
     children: React.ReactNode;
 }) {
     const pathname = usePathname();
-    const { isAuthenticated, getProfile } = useAuth();
+    const { getProfile } = useAuth();
 
     useEffect(() => {
         getProfile();
-    }, []);
+    }, [getProfile]);
 
     return (
         <div className="tw-min-h-screen tw-flex tw-flex-col tw-bg-white">
@@ -51,35 +51,6 @@ export default function PublicLayout({
                                 >
                                     About
                                 </Link>
-                            </div>
-                        </div>
-
-                        {/* Right - Auth Buttons */}
-                        <div className="tw-hidden md:tw-block">
-                            <div className="tw-flex tw-items-center tw-gap-4">
-                                {isAuthenticated ? (
-                                    <Link
-                                        href="/app/dashboard"
-                                        className="tw-rounded-lg tw-bg-blue-600 tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-text-white hover:tw-bg-blue-700"
-                                    >
-                                        Dashboard
-                                    </Link>
-                                ) : (
-                                    <>
-                                        <Link
-                                            href="/auth/login"
-                                            className="tw-text-sm tw-font-medium tw-text-gray-700 hover:tw-text-gray-900"
-                                        >
-                                            Sign in
-                                        </Link>
-                                        <Link
-                                            href="/auth/register"
-                                            className="tw-rounded-lg tw-bg-blue-600 tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-text-white hover:tw-bg-blue-700"
-                                        >
-                                            Sign up
-                                        </Link>
-                                    </>
-                                )}
                             </div>
                         </div>
 

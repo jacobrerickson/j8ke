@@ -5,5 +5,10 @@ export default [
   {
     ignores: ["dist/**"],
   },
+  {
+    rules: {
+      "@typescript-eslint/no-explicit-any": "off",
+    },
+  },
   ...baseConfig,
 ];

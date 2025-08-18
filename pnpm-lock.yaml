@@ -302,12 +302,6 @@ importers:
         specifier: ^5.4.5
         version: 5.7.3
 
-  packages/redis:
-    dependencies:
-      '@repo/eslint-config':
-        specifier: workspace:*
-        version: link:../../tooling/eslint
-
   packages/server:
     dependencies:
       '@faker-js/faker':

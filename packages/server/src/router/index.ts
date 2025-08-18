@@ -1,13 +1,8 @@
 import { trpc } from "../lib/trpc";
-import { authRouter } from "./auth";
-import { usersRouter } from "./users";
-import { redisRouter } from "./redis";
+import { formsRouter } from "./forms";
 
 export const appRouter = trpc.router({
-  auth: authRouter,
-  users: usersRouter,
-  redis: redisRouter,
+  form: formsRouter,
 });
 
 export type AppRouter = typeof appRouter;
-
