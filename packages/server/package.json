@@ -11,7 +11,7 @@
     "clean-port": "kill-port 3000",
     "dev": "pnpm run clean-port && pnpm withenv ts-node-dev ./src/index.ts",
     "seed": "pnpm withenv ts-node src/scripts/seed.ts",
-    "start": "pnpm withenv node ./dist/index.ts",
+    "start": "pnpm withenv node ./dist/index.js",
     "build": "pnpm withenv tsup src/index.ts --format esm,cjs",
     "lint": "eslint",
     "compose": "docker build -t server . && docker run -p 3000:3000 -it server"
