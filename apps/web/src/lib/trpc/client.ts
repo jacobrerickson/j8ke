@@ -4,9 +4,6 @@ import { TokensStorage } from "../utils/tokens-storage";
 
 // Environment configuration
 const getBaseUrl = () => {
-    if (typeof window !== 'undefined') {
-        return 'http://localhost:3000'; // Use the backend server URL
-    }
     return process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3000';
 };
 
