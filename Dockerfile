@@ -12,4 +12,4 @@ RUN pnpm build:server
 ENV NODE_ENV=production
 
 EXPOSE 3000
-CMD ["pnpm", "start:server"]
+CMD ["pnpm", "build:server"]
