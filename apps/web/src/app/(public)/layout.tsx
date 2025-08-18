@@ -2,8 +2,6 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect } from "react";
-import { useAuth } from "@/hooks/use-auth";
 
 export default function PublicLayout({
     children,
@@ -11,11 +9,7 @@ export default function PublicLayout({
     children: React.ReactNode;
 }) {
     const pathname = usePathname();
-    const { getProfile } = useAuth();
 
-    useEffect(() => {
-        getProfile();
-    }, [getProfile]);
 
     return (
         <div className="tw-min-h-screen tw-flex tw-flex-col tw-bg-white">

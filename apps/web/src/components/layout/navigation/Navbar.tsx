@@ -1,10 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import { useAuth } from '@/hooks/use-auth';
 
 export function Navbar() {
-    const { isAuthenticated, signOut } = useAuth();
 
     return (
         <nav className="tw-fixed tw-top-0 tw-left-0 tw-right-0 tw-h-navbar tw-bg-white tw-border-b tw-border-gray-200 tw-z-navbar">
@@ -14,7 +12,7 @@ export function Navbar() {
                 </Link>
 
                 <div className="tw-flex tw-items-center tw-space-x-4">
-                    {isAuthenticated ? (
+                    {true ? (
                         <>
                             <Link
                                 href="/app/dashboard"
@@ -23,7 +21,7 @@ export function Navbar() {
                                 Dashboard
                             </Link>
                             <button
-                                onClick={() => signOut()}
+                                onClick={() => { }}
                                 className="tw-text-gray-600 hover:tw-text-gray-900 tw-text-sm tw-font-medium"
                             >
                                 Sign Out
