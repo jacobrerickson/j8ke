@@ -1,4 +1,4 @@
-import { createTRPCProxyClient, httpLink } from "@trpc/client";
+import { createTRPCClient, httpLink } from "@trpc/client";
 import type { AppRouter } from "@repo/server/src/router";
 import { TokensStorage } from "../utils/tokens-storage";
 
@@ -20,7 +20,7 @@ const getTokens = () => {
 };
 
 // Create tRPC client with automatic token refresh
-export const client = createTRPCProxyClient<AppRouter>({
+export const client = createTRPCClient<AppRouter>({
     links: [
         httpLink({
             url: `${getBaseUrl()}/trpc`,
