@@ -70,7 +70,7 @@ const PROFILE_DATA = {
 
 export default function ContestFormAutomationPage() {
   const [googleFormUrl, setGoogleFormUrl] = useState(
-    "https://docs.google.com/forms/d/e/1FAIpQLSdhUJQ12PtzNBeOTBRT-7AUTmgcQL8ZUEWe_Rq6g_UwTzPu0Q/viewform",
+    "https://docs.google.com/forms/d/e/1FAIpQLSd4xjJ5A9MMIOUG4aE-poVwTgifuwc_LsM_NXAEP1DZz6sUCg/viewform",
   );
   const [activeProfile, setActiveProfile] = useState<"jacob" | "malina">(
     "jacob",
@@ -86,14 +86,14 @@ export default function ContestFormAutomationPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
   const [fieldIds, setFieldIds] = useState<FieldIds>({
-    firstName: "entry.579776882",
-    lastName: "entry.1536019707",
-    email: "entry.639861492",
-    phoneNumber: "entry.1208055556",
-    address: "entry.1883905042",
-    age: "entry.240429427",
-    selection: "entry.36983968_sentinel",
-    checkbox: "entry.1636036329_sentinel",
+    firstName: "entry.571028853",
+    lastName: "entry.1712022735",
+    email: "entry.1767608634",
+    phoneNumber: "entry.1789724440",
+    address: "entry.2018894863",
+    age: "entry.1536047979",
+    selection: "entry.1102134553_sentinel",
+    checkbox: "entry.1252729544_sentinel",
   });
   const [manualFormId, setManualFormId] = useState<string>("");
 
@@ -198,68 +198,6 @@ export default function ContestFormAutomationPage() {
     } catch (error) {
       console.error("Error extracting form ID:", error);
       return null;
-    }
-  };
-
-  // Debug function to help find correct field IDs
-  const debugFormFields = async () => {
-    const formId = extractFormId(googleFormUrl);
-    if (!formId) {
-      alert("Invalid Google Form URL. Please check your form URL format.");
-      return;
-    }
-
-    console.log("Extracted form ID:", formId);
-    console.log("Full URL:", googleFormUrl);
-
-    // Show manual detection instructions
-    const manualInstructions = `
-🔍 MANUAL FIELD ID DETECTION (Recommended)
-
-Since CORS prevents automatic detection, follow these steps:
-
-1. Open your Google Form in a new tab: ${googleFormUrl}
-2. Right-click and select "View Page Source" (or press Ctrl+U)
-3. Press Ctrl+F and search for "entry."
-4. Look for patterns like:
-   - entry.1234567890 (text fields)
-   - entry.1234567890_sentinel (multiple choice)
-   - entry.1234567890.0 (checkboxes)
-
-5. Copy the field IDs and update them in the form below.
-
-Form ID detected: ${formId}
-Submission URL: https://docs.google.com/forms/d/${formId}/formResponse
-
-Would you like to test a submission with the current field IDs?
-    `;
-
-    const shouldTest = confirm(manualInstructions);
-
-    if (shouldTest) {
-      // Test submission with current field IDs using tRPC
-      setIsTesting(true);
-      try {
-        console.log("Testing submission with field IDs:", fieldIds);
-
-        const result = await client.form.testSubmission.mutate({
-          formUrl: googleFormUrl,
-          formId: formId,
-          fieldIds: fieldIds,
-        });
-
-        console.log("Test submission result:", result);
-        alert(
-          `✅ Test submission sent successfully!\n\nForm ID: ${result.formId}\nMessage: ${result.message}\n\nCheck your Google Form responses to see if it worked.\n\nIf you don't see the test submission, the field IDs are likely incorrect.`,
-        );
-      } catch (error) {
-        console.error("Test submission error:", error);
-        alert(
-          `❌ Test submission failed: ${error instanceof Error ? error.message : "Unknown error"}`,
-        );
-      } finally {
-        setIsTesting(false);
-      }
     }
   };
 
@@ -453,7 +391,7 @@ Would you like to test a submission with the current field IDs?
     <div className="tw-container tw-mx-auto tw-px-4 tw-py-8 tw-max-w-4xl">
       <div className="tw-mb-8">
         <h1 className="tw-text-3xl tw-font-bold tw-mb-2">
-          Contest Entry Automation
+          Contest Entry Automation - Week 5
         </h1>
         <p className="tw-text-gray-600">
           Automate your daily contest entries - 7 submissions per day with
