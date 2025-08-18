@@ -46,19 +46,36 @@ const ACTUAL_OPTIONS = [
   "Cook Brother's Pharmacy",
 ];
 
-export default function ContestFormAutomationPage() {
-  const [googleFormUrl, setGoogleFormUrl] = useState(
-    "https://docs.google.com/forms/d/e/1FAIpQLSdhUJQ12PtzNBeOTBRT-7AUTmgcQL8ZUEWe_Rq6g_UwTzPu0Q/viewform",
-  );
-  const [formData, setFormData] = useState<ContestFormData>({
+// Preset form data for different profiles
+const PROFILE_DATA = {
+  jacob: {
     firstName: "Jacob",
     lastName: "Erickson",
     email: "jacobroberterickson@gmail.com",
     phoneNumber: "3856257937",
-    address: "690 E 1400 N APT 1,Logan, UT 84341",
+    address: "690 E 1400 N APT 1, Logan, UT 84341",
     age: "22",
     checkboxOption: true,
-  });
+  },
+  malina: {
+    firstName: "Malina",
+    lastName: "Erickson",
+    email: "ericksonmalina@gmail.com",
+    phoneNumber: "8019462366",
+    address: "690 E 1400 N APT 1, Logan, UT 84341",
+    age: "22",
+    checkboxOption: true,
+  },
+};
+
+export default function ContestFormAutomationPage() {
+  const [googleFormUrl, setGoogleFormUrl] = useState(
+    "https://docs.google.com/forms/d/e/1FAIpQLSdhUJQ12PtzNBeOTBRT-7AUTmgcQL8ZUEWe_Rq6g_UwTzPu0Q/viewform",
+  );
+  const [activeProfile, setActiveProfile] = useState<"jacob" | "malina">(
+    "jacob",
+  );
+  const [formData, setFormData] = useState<ContestFormData>(PROFILE_DATA.jacob);
   const [submissions, setSubmissions] = useState<FormSubmission[]>([]);
   const [isRunning, setIsRunning] = useState(false);
   const [currentSubmission, setCurrentSubmission] = useState(0);
@@ -86,6 +103,12 @@ export default function ContestFormAutomationPage() {
     value: string | boolean | string[],
   ) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  // Switch between profiles
+  const switchProfile = (profile: "jacob" | "malina") => {
+    setActiveProfile(profile);
+    setFormData(PROFILE_DATA[profile]);
   };
 
   // Generate 7 submissions (one for each selection option)
@@ -472,22 +495,23 @@ Would you like to test a submission with the current field IDs?
                 )}
               </div>
               {!(googleFormUrl && extractFormId(googleFormUrl)) && (
-              <div>
-                <label className="tw-block tw-text-sm tw-font-medium tw-mb-2">
-                  Manual Form ID (Optional)
-                </label>
-                <input
-                  type="text"
-                  placeholder="1FAIpQLSdhUJQ12PtzNBeOTBRT-7AUTmgcQL8ZUEWe_Rq6g_UwTzPu0Q"
-                  value={manualFormId}
-                  onChange={(e) => setManualFormId(e.target.value)}
-                  className="tw-w-full tw-px-3 tw-py-2 tw-border tw-border-gray-300 tw-rounded-md tw-focus:outline-none tw-focus:ring-2 tw-focus:ring-blue-500"
-                />
-                <p className="tw-text-xs tw-text-gray-600 tw-mt-1">
-                  If automatic detection fails, manually enter the form ID from
-                  your URL
-                </p>
-              </div>)}
+                <div>
+                  <label className="tw-block tw-text-sm tw-font-medium tw-mb-2">
+                    Manual Form ID (Optional)
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="1FAIpQLSdhUJQ12PtzNBeOTBRT-7AUTmgcQL8ZUEWe_Rq6g_UwTzPu0Q"
+                    value={manualFormId}
+                    onChange={(e) => setManualFormId(e.target.value)}
+                    className="tw-w-full tw-px-3 tw-py-2 tw-border tw-border-gray-300 tw-rounded-md tw-focus:outline-none tw-focus:ring-2 tw-focus:ring-blue-500"
+                  />
+                  <p className="tw-text-xs tw-text-gray-600 tw-mt-1">
+                    If automatic detection fails, manually enter the form ID
+                    from your URL
+                  </p>
+                </div>
+              )}
 
               <div>
                 <label className="tw-block tw-text-sm tw-font-medium tw-mb-2">
@@ -696,6 +720,49 @@ Would you like to test a submission with the current field IDs?
               </h3>
               <p className="tw-text-sm tw-text-gray-600 tw-mt-1">
                 Your information (will be used for all 7 submissions)
+              </p>
+            </div>
+            <div className="tw-p-6 tw-border-b tw-bg-gray-50">
+              <div className="tw-flex tw-items-center tw-justify-between">
+                <label className="tw-text-sm tw-font-medium tw-text-gray-700">
+                  Profile Selection
+                </label>
+                <div className="tw-flex tw-items-center tw-gap-3">
+                  <span
+                    className={`tw-text-sm tw-font-medium ${activeProfile === "jacob" ? "tw-text-blue-600" : "tw-text-gray-500"}`}
+                  >
+                    Jacob
+                  </span>
+                  <button
+                    onClick={() =>
+                      switchProfile(
+                        activeProfile === "jacob" ? "malina" : "jacob",
+                      )
+                    }
+                    className={`tw-relative tw-inline-flex tw-h-6 tw-w-11 tw-items-center tw-rounded-full tw-transition-colors tw-focus:outline-none tw-focus:ring-2 tw-focus:ring-blue-500 tw-focus:ring-offset-2 ${
+                      activeProfile === "malina"
+                        ? "tw-bg-blue-600"
+                        : "tw-bg-gray-200"
+                    }`}
+                  >
+                    <span
+                      className={`tw-inline-block tw-h-4 tw-w-4 tw-transform tw-rounded-full tw-bg-white tw-transition-transform ${
+                        activeProfile === "malina"
+                          ? "tw-translate-x-6"
+                          : "tw-translate-x-1"
+                      }`}
+                    />
+                  </button>
+                  <span
+                    className={`tw-text-sm tw-font-medium ${activeProfile === "malina" ? "tw-text-blue-600" : "tw-text-gray-500"}`}
+                  >
+                    Malina
+                  </span>
+                </div>
+              </div>
+              <p className="tw-text-xs tw-text-gray-500 tw-mt-1">
+                Switch between profiles to automatically fill in different
+                information
               </p>
             </div>
             <div className="tw-p-6 tw-space-y-4">
