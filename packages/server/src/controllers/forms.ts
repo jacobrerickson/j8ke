@@ -160,10 +160,6 @@ const submitToGoogleForm = async (
     });
 
     console.log("Response status:", response.status);
-    console.log(
-      "Response headers:",
-      Object.fromEntries(response.headers.entries()),
-    );
 
     // Google Forms can return 302 (redirect) or 200 on success
     // or 400 on validation errors
@@ -396,13 +392,6 @@ export const submitForm = async (input: FormSubmissionInput) => {
     // Extract form ID
     const extractedFormId = extractFormId(formUrl, formId);
     const submissionUrl = `https://docs.google.com/forms/d/e/${extractedFormId}/formResponse`;
-
-    console.log("extractedFormId", extractedFormId);
-    console.log("submissionUrl", submissionUrl);
-    console.log("formData", formData);
-    console.log("fieldIds", fieldIds);
-    console.log("selectionOption", selectionOption);
-
     // Create submission data with selection option
     const submissionData: FormData = {
       ...formData,
@@ -415,8 +404,6 @@ export const submitForm = async (input: FormSubmissionInput) => {
       fieldIds,
       selectionOption,
     );
-
-    console.log("result", result);
 
     if (!result.success) {
       throw new TRPCError({

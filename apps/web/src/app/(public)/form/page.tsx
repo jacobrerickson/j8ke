@@ -1,11 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { client } from "@/lib/trpc/client";
-
-
-
-
+import { ContestStorage } from "@/lib/utils/contest-storage";
 
 interface ContestFormData {
   firstName: string;
@@ -96,6 +93,38 @@ export default function ContestFormAutomationPage() {
     checkbox: "entry.1252729544_sentinel",
   });
   const [manualFormId, setManualFormId] = useState<string>("");
+  const [deviceId, setDeviceId] = useState<string>("");
+  const [remainingSubmissions, setRemainingSubmissions] = useState<number>(7);
+  const [persistenceEnabled, setPersistenceEnabled] = useState<boolean>(true);
+
+  // Initialize persistence on component mount
+  useEffect(() => {
+    if (persistenceEnabled) {
+      const deviceId = ContestStorage.getDeviceId();
+      setDeviceId(deviceId);
+
+      const remaining = ContestStorage.getRemainingSubmissions();
+      setRemainingSubmissions(remaining);
+
+      const entry = ContestStorage.getContestEntry();
+      if (entry?.lastSubmissionDate) {
+        setLastSubmissionDate(entry.lastSubmissionDate);
+      }
+
+      // Load previous submissions if they exist for today
+      const history = ContestStorage.getSubmissionHistory();
+      if (history.length > 0) {
+        const todaySubmissions = history.map((entry, index) => ({
+          id: entry.id,
+          status: entry.status,
+          timestamp: new Date(entry.timestamp),
+          selectionOption: entry.selectionOption,
+        }));
+        setSubmissions(todaySubmissions);
+        setCurrentSubmission(todaySubmissions.length);
+      }
+    }
+  }, [persistenceEnabled]);
 
   // Update form data
   const updateFormData = (
@@ -134,6 +163,11 @@ export default function ContestFormAutomationPage() {
 
   // Check if we can submit today (max 7 per day)
   const canSubmitToday = () => {
+    if (persistenceEnabled) {
+      return ContestStorage.canSubmitToday();
+    }
+
+    // Fallback to original logic
     const today = new Date().toDateString();
     if (lastSubmissionDate === today) {
       return false;
@@ -325,6 +359,16 @@ export default function ContestFormAutomationPage() {
               : sub,
           ),
         );
+
+        // Update persistence if enabled
+        if (persistenceEnabled) {
+          const selectionOption = ACTUAL_OPTIONS[i] || `Option ${i + 1}`;
+          ContestStorage.addSubmission(
+            selectionOption,
+            success ? "success" : "error",
+          );
+          setRemainingSubmissions(ContestStorage.getRemainingSubmissions());
+        }
       } catch (error) {
         console.error("Submission error:", error);
         setSubmissions((prev) =>
@@ -340,7 +384,14 @@ export default function ContestFormAutomationPage() {
     setIsSubmitting(false);
 
     // Mark today as submitted
-    setLastSubmissionDate(new Date().toDateString());
+    if (persistenceEnabled) {
+      const entry = ContestStorage.getContestEntry();
+      if (entry) {
+        setLastSubmissionDate(entry.lastSubmissionDate);
+      }
+    } else {
+      setLastSubmissionDate(new Date().toDateString());
+    }
     setIsRunning(false);
     setIsPaused(false);
   };
@@ -375,6 +426,10 @@ export default function ContestFormAutomationPage() {
 
   // Reset for new day
   const resetForNewDay = () => {
+    if (persistenceEnabled) {
+      ContestStorage.resetForNewDay();
+      setRemainingSubmissions(ContestStorage.getRemainingSubmissions());
+    }
     setSubmissions([]);
     setCurrentSubmission(0);
     setLastSubmissionDate("");
@@ -463,6 +518,36 @@ export default function ContestFormAutomationPage() {
                   onChange={(e) => setDelay(Number(e.target.value))}
                   className="tw-w-full tw-px-3 tw-py-2 tw-border tw-border-gray-300 tw-rounded-md tw-focus:outline-none tw-focus:ring-2 tw-focus:ring-blue-500"
                 />
+              </div>
+
+              <div>
+                <label className="tw-block tw-text-sm tw-font-medium tw-mb-2">
+                  Device Persistence
+                </label>
+                <div className="tw-flex tw-items-center tw-justify-between tw-p-3 tw-border tw-border-gray-300 tw-rounded-md tw-bg-gray-50">
+                  <div>
+                    <div className="tw-text-sm tw-font-medium">
+                      Track Device Submissions
+                    </div>
+                    <div className="tw-text-xs tw-text-gray-600">
+                      Persist submission history across browser sessions
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => setPersistenceEnabled(!persistenceEnabled)}
+                    className={`tw-relative tw-inline-flex tw-h-6 tw-w-11 tw-items-center tw-rounded-full tw-transition-colors tw-focus:outline-none tw-focus:ring-2 tw-focus:ring-blue-500 tw-focus:ring-offset-2 ${
+                      persistenceEnabled ? "tw-bg-blue-600" : "tw-bg-gray-200"
+                    }`}
+                  >
+                    <span
+                      className={`tw-inline-block tw-h-4 tw-w-4 tw-transform tw-rounded-full tw-bg-white tw-transition-transform ${
+                        persistenceEnabled
+                          ? "tw-translate-x-6"
+                          : "tw-translate-x-1"
+                      }`}
+                    />
+                  </button>
+                </div>
               </div>
 
               <div className="tw-bg-blue-50 tw-border tw-border-blue-200 tw-rounded-md tw-p-3">
@@ -819,7 +904,33 @@ export default function ContestFormAutomationPage() {
               </p>
             </div>
             <div className="tw-p-6 tw-space-y-4">
-              {lastSubmissionDate && (
+              {/* Persistence Status */}
+              {persistenceEnabled && (
+                <div className="tw-bg-green-50 tw-border tw-border-green-200 tw-rounded-md tw-p-3">
+                  <div className="tw-text-sm tw-text-green-800 tw-space-y-1">
+                    <div className="tw-flex tw-items-center tw-justify-between">
+                      <strong>Device Tracking:</strong>
+                      <span className="tw-text-xs tw-bg-green-200 tw-px-2 tw-py-1 tw-rounded">
+                        Active
+                      </span>
+                    </div>
+                    <div className="tw-text-xs">
+                      <strong>Device ID:</strong> {deviceId}
+                    </div>
+                    <div className="tw-text-xs">
+                      <strong>Remaining submissions today:</strong>{" "}
+                      {remainingSubmissions}/7
+                    </div>
+                    {lastSubmissionDate && (
+                      <div className="tw-text-xs">
+                        <strong>Last submission:</strong> {lastSubmissionDate}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {!persistenceEnabled && lastSubmissionDate && (
                 <div className="tw-bg-blue-50 tw-border tw-border-blue-200 tw-rounded-md tw-p-3">
                   <div className="tw-text-sm tw-text-blue-800">
                     <strong>Last submission date:</strong> {lastSubmissionDate}
@@ -854,6 +965,22 @@ export default function ContestFormAutomationPage() {
                   className="tw-px-4 tw-py-2 tw-border tw-border-orange-300 tw-rounded-md hover:tw-bg-orange-50 tw-text-orange-600 tw-text-sm"
                 >
                   🔄 Reset for New Day
+                </button>
+                <button
+                  onClick={() => {
+                    if (persistenceEnabled) {
+                      ContestStorage.clearContestData();
+                      setDeviceId("");
+                      setRemainingSubmissions(7);
+                      setLastSubmissionDate("");
+                      setSubmissions([]);
+                      setCurrentSubmission(0);
+                    }
+                  }}
+                  disabled={!persistenceEnabled}
+                  className="tw-px-4 tw-py-2 tw-border tw-border-red-300 tw-rounded-md hover:tw-bg-red-50 tw-text-red-600 tw-text-sm disabled:tw-opacity-50"
+                >
+                  🗑️ Clear Device Data
                 </button>
               </div>
 
