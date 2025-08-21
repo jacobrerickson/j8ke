@@ -31,6 +31,7 @@ interface FormSubmission {
   message?: string;
   timestamp?: Date;
   selectionOption?: string;
+  submitterName?: string;
 }
 
 const ACTUAL_OPTIONS = [
@@ -119,12 +120,13 @@ export default function ContestFormAutomationPage() {
           status: entry.status,
           timestamp: new Date(entry.timestamp),
           selectionOption: entry.selectionOption,
+          submitterName: `${formData.firstName} ${formData.lastName}`,
         }));
         setSubmissions(todaySubmissions);
         setCurrentSubmission(todaySubmissions.length);
       }
     }
-  }, [persistenceEnabled]);
+  }, [persistenceEnabled, formData.firstName, formData.lastName]);
 
   // Update form data
   const updateFormData = (
@@ -154,6 +156,7 @@ export default function ContestFormAutomationPage() {
         status: "pending",
         timestamp: new Date(),
         selectionOption: actualOptions[i] || `Option ${i + 1}`,
+        submitterName: `${formData.firstName} ${formData.lastName}`,
       });
     }
 
@@ -1094,6 +1097,11 @@ export default function ContestFormAutomationPage() {
                           {submission.status}
                         </span>
                         <span>Entry {index + 1}</span>
+                        {submission.submitterName && (
+                          <span className="tw-text-xs tw-text-gray-700">
+                            by {submission.submitterName}
+                          </span>
+                        )}
                         {submission.selectionOption && (
                           <span className="tw-text-xs tw-text-gray-600">
                             ({submission.selectionOption})
