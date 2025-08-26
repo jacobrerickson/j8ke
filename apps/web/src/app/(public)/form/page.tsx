@@ -4,6 +4,10 @@ import { useEffect, useState } from "react";
 import { client } from "@/lib/trpc/client";
 import { ContestStorage } from "@/lib/utils/contest-storage";
 
+
+
+
+
 interface ContestFormData {
   firstName: string;
   lastName: string;
@@ -68,7 +72,7 @@ const PROFILE_DATA = {
 
 export default function ContestFormAutomationPage() {
   const [googleFormUrl, setGoogleFormUrl] = useState(
-    "https://docs.google.com/forms/d/e/1FAIpQLSd4xjJ5A9MMIOUG4aE-poVwTgifuwc_LsM_NXAEP1DZz6sUCg/viewform",
+    "https://docs.google.com/forms/d/e/1FAIpQLSe2Kx_8LqZLNCyjOE-xprcsnsIk3QhQJLN_W20RW4rAjhYC5w/viewform",
   );
   const [activeProfile, setActiveProfile] = useState<"jacob" | "malina">(
     "jacob",
@@ -80,16 +84,15 @@ export default function ContestFormAutomationPage() {
   const [delay, setDelay] = useState(2000);
   const [isPaused, setIsPaused] = useState(false);
   const [lastSubmissionDate, setLastSubmissionDate] = useState<string>("");
-  const [isTesting, setIsTesting] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
   const [fieldIds, setFieldIds] = useState<FieldIds>({
-    firstName: "entry.571028853",
-    lastName: "entry.1712022735",
+    firstName: "entry.1390509299",
+    lastName: "entry.459657112",
     email: "entry.1767608634",
     phoneNumber: "entry.1789724440",
     address: "entry.2018894863",
-    age: "entry.1536047979",
+    age: "entry.1635014427",
     selection: "entry.1102134553_sentinel",
     checkbox: "entry.1252729544_sentinel",
   });
