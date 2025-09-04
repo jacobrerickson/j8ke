@@ -72,7 +72,7 @@ const PROFILE_DATA = {
 
 export default function ContestFormAutomationPage() {
   const [googleFormUrl, setGoogleFormUrl] = useState(
-    "https://docs.google.com/forms/d/e/1FAIpQLSe2Kx_8LqZLNCyjOE-xprcsnsIk3QhQJLN_W20RW4rAjhYC5w/viewform",
+    "https://docs.google.com/forms/d/e/1FAIpQLSeTA4A3ClRZmyBMG3XvEIw5nYIhTvtGSkjoKPg6wYrlU6IHRg/viewform",
   );
   const [activeProfile, setActiveProfile] = useState<"jacob" | "malina">(
     "jacob",
@@ -87,12 +87,12 @@ export default function ContestFormAutomationPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
   const [fieldIds, setFieldIds] = useState<FieldIds>({
-    firstName: "entry.1390509299",
-    lastName: "entry.459657112",
+    firstName: "entry.1899093681",
+    lastName: "entry.1672792022",
     email: "entry.1767608634",
     phoneNumber: "entry.1789724440",
     address: "entry.2018894863",
-    age: "entry.1635014427",
+    age: "entry.37188739",
     selection: "entry.1102134553_sentinel",
     checkbox: "entry.1252729544_sentinel",
   });
@@ -452,7 +452,7 @@ export default function ContestFormAutomationPage() {
     <div className="tw-container tw-mx-auto tw-px-4 tw-py-8 tw-max-w-4xl">
       <div className="tw-mb-8">
         <h1 className="tw-text-3xl tw-font-bold tw-mb-2">
-          Contest Entry Automation - Week 5
+          Contest Entry Automation - Week 7
         </h1>
         <p className="tw-text-gray-600">
           Automate your daily contest entries - 7 submissions per day with
