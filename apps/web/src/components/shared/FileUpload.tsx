@@ -408,10 +408,18 @@ export const FileUpload = ({
               </div>
 
               {/* Space Savings */}
-              {uploadState.spaceSavings && uploadState.spaceSavings.savedBytes > 0 && (
-                <div className="tw-p-4 tw-bg-purple-50 tw-border tw-border-purple-200 tw-rounded-md">
-                  <h3 className="tw-text-lg tw-font-medium tw-text-purple-900 tw-mb-3">
-                    Space Savings
+              {uploadState.spaceSavings && (
+                <div className={`tw-p-4 tw-border tw-rounded-md ${
+                  uploadState.spaceSavings.savedBytes > 0
+                    ? "tw-bg-purple-50 tw-border-purple-200"
+                    : "tw-bg-yellow-50 tw-border-yellow-200"
+                }`}>
+                  <h3 className={`tw-text-lg tw-font-medium tw-mb-3 ${
+                    uploadState.spaceSavings.savedBytes > 0
+                      ? "tw-text-purple-900"
+                      : "tw-text-yellow-900"
+                  }`}>
+                    {uploadState.spaceSavings.savedBytes > 0 ? "Space Savings" : "URL Analysis"}
                   </h3>
                   <div className="tw-grid tw-grid-cols-2 tw-gap-4 tw-text-sm">
                     <div>
@@ -427,18 +435,43 @@ export const FileUpload = ({
                       </span>
                     </div>
                     <div>
-                      <span className="tw-text-gray-600">Space saved:</span>
-                      <span className="tw-ml-2 tw-font-medium tw-text-purple-600">
-                        {formatFileSize(uploadState.spaceSavings.savedBytes)}
+                      <span className="tw-text-gray-600">
+                        {uploadState.spaceSavings.savedBytes > 0 ? "Space saved:" : "Space difference:"}
+                      </span>
+                      <span className={`tw-ml-2 tw-font-medium ${
+                        uploadState.spaceSavings.savedBytes > 0
+                          ? "tw-text-purple-600"
+                          : uploadState.spaceSavings.savedBytes < 0
+                            ? "tw-text-red-600"
+                            : "tw-text-gray-600"
+                      }`}>
+                        {uploadState.spaceSavings.savedBytes > 0 ? "+" : ""}
+                        {formatFileSize(Math.abs(uploadState.spaceSavings.savedBytes))}
+                        {uploadState.spaceSavings.savedBytes < 0 ? " (increased)" : ""}
                       </span>
                     </div>
                     <div>
-                      <span className="tw-text-gray-600">Percentage saved:</span>
-                      <span className="tw-ml-2 tw-font-medium tw-text-purple-600">
+                      <span className="tw-text-gray-600">Percentage change:</span>
+                      <span className={`tw-ml-2 tw-font-medium ${
+                        uploadState.spaceSavings.savedBytes > 0
+                          ? "tw-text-purple-600"
+                          : uploadState.spaceSavings.savedBytes < 0
+                            ? "tw-text-red-600"
+                            : "tw-text-gray-600"
+                      }`}>
+                        {uploadState.spaceSavings.savedPercentage > 0 ? "+" : ""}
                         {uploadState.spaceSavings.savedPercentage.toFixed(1)}%
                       </span>
                     </div>
                   </div>
+                  {uploadState.spaceSavings.savedBytes <= 0 && (
+                    <div className="tw-mt-3 tw-text-xs tw-text-yellow-700">
+                      <p>
+                        💡 The shortened URLs are not saving space because the domain name is longer than the original URLs.
+                        This is common with longer domain names in production environments.
+                      </p>
+                    </div>
+                  )}
                 </div>
               )}
             </div>

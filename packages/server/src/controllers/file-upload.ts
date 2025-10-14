@@ -258,6 +258,17 @@ const calculateSpaceSavings = (
   const savedBytes = originalSize - shortenedSize;
   const savedPercentage = originalSize > 0 ? (savedBytes / originalSize) * 100 : 0;
 
+  // Debug logging for production issues
+  console.log('Space Savings Calculation:', {
+    originalUrls: originalUrls.slice(0, 3), // Log first 3 URLs for debugging
+    shortenedUrls: shortenedUrls.slice(0, 3),
+    originalSize,
+    shortenedSize,
+    savedBytes,
+    savedPercentage,
+    serverUrl: process.env.SERVER_URL
+  });
+
   return {
     originalSize,
     shortenedSize,
