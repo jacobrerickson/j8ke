@@ -30,7 +30,6 @@
     "@types/node": "^20.12.9",
     "@types/nodemailer": "^6.4.15",
     "@types/react-dom": "^19.0.4",
-    "@types/uuid": "^11.0.0",
     "@types/yup": "^0.32.0",
     "kill-port": "^2.0.1",
     "prisma": "^4.9.0",
@@ -64,7 +63,6 @@
     "tsc-alias": "^1.8.10",
     "tsconfig-paths": "^4.2.0",
     "tsup": "^8.1.0",
-    "uuid": "^13.0.0",
     "yup": "^1.4.0"
   }
 }
