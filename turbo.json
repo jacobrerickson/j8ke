@@ -3,11 +3,7 @@
   "ui": "tui",
   "tasks": {
     "build": {
-      "outputs": [
-        ".next/**",
-        "!.next/cache/**",
-        "dist/**"
-      ]
+      "outputs": [".next/**", "!.next/cache/**", "dist/**"]
     },
     "start": {},
     "dev": {
@@ -69,6 +65,8 @@
     "JWT_SECRET",
     "MAIL_TRAP_USER",
     "MAIL_TRAP_PASSWORD",
-    "NEXT_PUBLIC_GOOGLE_CLIENT_ID"
+    "NEXT_PUBLIC_GOOGLE_CLIENT_ID",
+    "SERVER_URL",
+    "PORT"
   ]
 }

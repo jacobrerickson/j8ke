@@ -65,6 +65,16 @@ export default function PublicLayout({
                 >
                   Form
                 </Link>
+                <Link
+                  href="/url-shortener"
+                  className={`tw-text-sm tw-font-medium ${
+                    pathname === "/url-shortener"
+                      ? "tw-text-blue-600"
+                      : "tw-text-gray-700 hover:tw-text-gray-900"
+                  }`}
+                >
+                  URL Shortener
+                </Link>
               </div>
             </div>
 
@@ -147,6 +157,17 @@ export default function PublicLayout({
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   Form
+                </Link>
+                <Link
+                  href="/url-shortener"
+                  className={`tw-block tw-px-3 tw-py-2 tw-text-base tw-font-medium ${
+                    pathname === "/url-shortener"
+                      ? "tw-bg-blue-50 tw-text-blue-600"
+                      : "tw-text-gray-700 hover:tw-bg-gray-50 hover:tw-text-gray-900"
+                  }`}
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  URL Shortener
                 </Link>
               </div>
             </div>
