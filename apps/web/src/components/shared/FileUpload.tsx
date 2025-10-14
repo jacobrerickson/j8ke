@@ -36,6 +36,7 @@ interface UploadState {
   downloadUrl: string | null;
   originalUrls: string[];
   shortenedUrls: string[];
+  originalFileSize: number | null;
   spaceSavings?: {
     originalSize: number;
     shortenedSize: number;
@@ -70,6 +71,7 @@ export const FileUpload = ({
     downloadUrl: null,
     originalUrls: [],
     shortenedUrls: [],
+    originalFileSize: null,
     spaceSavings: undefined,
   });
 
@@ -112,7 +114,7 @@ export const FileUpload = ({
       }
 
       setSelectedFile(file);
-      setUploadState((prev) => ({ ...prev, error: null }));
+      setUploadState((prev) => ({ ...prev, error: null, originalFileSize: file.size }));
     },
     [validateFile, onUploadError],
   );
@@ -212,6 +214,7 @@ export const FileUpload = ({
       downloadUrl: null,
       originalUrls: [],
       shortenedUrls: [],
+      originalFileSize: null,
       spaceSavings: undefined,
     });
     if (fileInputRef.current) {
@@ -409,66 +412,85 @@ export const FileUpload = ({
 
               {/* Space Savings */}
               {uploadState.spaceSavings && (
-                <div className={`tw-p-4 tw-border tw-rounded-md ${
-                  uploadState.spaceSavings.savedBytes > 0
-                    ? "tw-bg-purple-50 tw-border-purple-200"
-                    : "tw-bg-yellow-50 tw-border-yellow-200"
-                }`}>
-                  <h3 className={`tw-text-lg tw-font-medium tw-mb-3 ${
+                <div
+                  className={`tw-p-4 tw-border tw-rounded-md ${
                     uploadState.spaceSavings.savedBytes > 0
-                      ? "tw-text-purple-900"
-                      : "tw-text-yellow-900"
-                  }`}>
-                    {uploadState.spaceSavings.savedBytes > 0 ? "Space Savings" : "URL Analysis"}
+                      ? "tw-bg-purple-50 tw-border-purple-200"
+                      : "tw-bg-yellow-50 tw-border-yellow-200"
+                  }`}
+                >
+                  <h3
+                    className={`tw-text-lg tw-font-medium tw-mb-3 ${
+                      uploadState.spaceSavings.savedBytes > 0
+                        ? "tw-text-purple-900"
+                        : "tw-text-yellow-900"
+                    }`}
+                  >
+                    {uploadState.spaceSavings.savedBytes > 0
+                      ? "Space Savings"
+                      : "URL Analysis"}
                   </h3>
                   <div className="tw-grid tw-grid-cols-2 tw-gap-4 tw-text-sm">
                     <div>
-                      <span className="tw-text-gray-600">Original URLs size:</span>
+                      <span className="tw-text-gray-600">
+                        Original URLs size:
+                      </span>
                       <span className="tw-ml-2 tw-font-medium">
                         {formatFileSize(uploadState.spaceSavings.originalSize)}
                       </span>
                     </div>
                     <div>
-                      <span className="tw-text-gray-600">Shortened URLs size:</span>
+                      <span className="tw-text-gray-600">
+                        Shortened URLs size:
+                      </span>
                       <span className="tw-ml-2 tw-font-medium">
                         {formatFileSize(uploadState.spaceSavings.shortenedSize)}
                       </span>
                     </div>
                     <div>
                       <span className="tw-text-gray-600">
-                        {uploadState.spaceSavings.savedBytes > 0 ? "Space saved:" : "Space difference:"}
+                        {uploadState.spaceSavings.savedBytes > 0
+                          ? "Space saved:"
+                          : "Space difference:"}
                       </span>
-                      <span className={`tw-ml-2 tw-font-medium ${
-                        uploadState.spaceSavings.savedBytes > 0
-                          ? "tw-text-purple-600"
-                          : uploadState.spaceSavings.savedBytes < 0
-                            ? "tw-text-red-600"
-                            : "tw-text-gray-600"
-                      }`}>
-                        {uploadState.spaceSavings.savedBytes > 0 ? "+" : ""}
-                        {formatFileSize(Math.abs(uploadState.spaceSavings.savedBytes))}
-                        {uploadState.spaceSavings.savedBytes < 0 ? " (increased)" : ""}
+                      <span
+                        className={`tw-ml-2 tw-font-medium ${
+                          uploadState.spaceSavings.savedBytes > 0
+                            ? "tw-text-purple-600"
+                            : uploadState.spaceSavings.savedBytes < 0
+                              ? "tw-text-red-600"
+                              : "tw-text-gray-600"
+                        }`}
+                      >
+                        {formatFileSize(uploadState.spaceSavings.savedBytes)}
                       </span>
                     </div>
                     <div>
-                      <span className="tw-text-gray-600">Percentage change:</span>
-                      <span className={`tw-ml-2 tw-font-medium ${
-                        uploadState.spaceSavings.savedBytes > 0
-                          ? "tw-text-purple-600"
-                          : uploadState.spaceSavings.savedBytes < 0
-                            ? "tw-text-red-600"
-                            : "tw-text-gray-600"
-                      }`}>
-                        {uploadState.spaceSavings.savedPercentage > 0 ? "+" : ""}
-                        {uploadState.spaceSavings.savedPercentage.toFixed(1)}%
+                      <span className="tw-text-gray-600">
+                        New File Size:
+                      </span>
+                      <span
+                        className={`tw-ml-2 tw-font-medium ${
+                          uploadState.spaceSavings.savedBytes > 0
+                            ? "tw-text-purple-600"
+                            : uploadState.spaceSavings.savedBytes < 0
+                              ? "tw-text-red-600"
+                              : "tw-text-gray-600"
+                        }`}
+                      >
+                        {uploadState.originalFileSize !== null
+                          ? formatFileSize(uploadState.originalFileSize - uploadState.spaceSavings.savedBytes)
+                          : "N/A"}
                       </span>
                     </div>
                   </div>
                   {uploadState.spaceSavings.savedBytes <= 0 && (
                     <div className="tw-mt-3 tw-text-xs tw-text-yellow-700">
                       <p>
-                        💡 The shortened URLs are not saving space because the domain name is longer than the original URLs.
-                        This is common with longer domain names in production environments.
+                        💡 The shortened URLs are not saving space because the
+                        domain name is longer than the original URLs. This is
+                        common with longer domain names in production
+                        environments.
                       </p>
                     </div>
                   )}
