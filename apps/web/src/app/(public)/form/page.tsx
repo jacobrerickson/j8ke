@@ -4,10 +4,6 @@ import { useEffect, useState } from "react";
 import { client } from "@/lib/trpc/client";
 import { ContestStorage } from "@/lib/utils/contest-storage";
 
-
-
-
-
 interface ContestFormData {
   firstName: string;
   lastName: string;
@@ -48,25 +44,25 @@ const ACTUAL_OPTIONS = [
   "Cook Brother's Pharmacy",
 ];
 
-// Preset form data for different profiles
+// Preset form data for different profiles (cleared by default)
 const PROFILE_DATA = {
   jacob: {
-    firstName: "Jacob",
-    lastName: "Erickson",
-    email: "jacobroberterickson@gmail.com",
-    phoneNumber: "3856257937",
-    address: "690 E 1400 N APT 1, Logan, UT 84341",
-    age: "22",
-    checkboxOption: true,
+    firstName: "",
+    lastName: "",
+    email: "",
+    phoneNumber: "",
+    address: "",
+    age: "",
+    checkboxOption: false,
   },
   malina: {
-    firstName: "Malina",
-    lastName: "Erickson",
-    email: "ericksonmalina@gmail.com",
-    phoneNumber: "8019462366",
-    address: "690 E 1400 N APT 1, Logan, UT 84341",
-    age: "22",
-    checkboxOption: true,
+    firstName: "",
+    lastName: "",
+    email: "",
+    phoneNumber: "",
+    address: "",
+    age: "",
+    checkboxOption: false,
   },
 };
 
