@@ -18,6 +18,12 @@ export interface FileProcessResult {
   downloadUrl: string;
   originalUrls: string[];
   shortenedUrls: string[];
+  spaceSavings?: {
+    originalSize: number;
+    shortenedSize: number;
+    savedBytes: number;
+    savedPercentage: number;
+  };
   message?: string;
 }
 

@@ -23,6 +23,12 @@ export interface FileProcessResult {
   downloadUrl: string;
   originalUrls: string[];
   shortenedUrls: string[];
+  spaceSavings?: {
+    originalSize: number;
+    shortenedSize: number;
+    savedBytes: number;
+    savedPercentage: number;
+  };
   message?: string;
 }
 
@@ -239,6 +245,27 @@ const shortenUrl = async (url: string): Promise<string> => {
   return `${process.env.SERVER_URL ?? "http://localhost:3000"}/s/${shortCode}`;
 };
 
+// Calculate space savings from URL shortening
+const calculateSpaceSavings = (
+  originalUrls: string[],
+  shortenedUrls: string[],
+) => {
+  const originalSize = originalUrls.reduce((total, url) => total + url.length, 0);
+  const shortenedSize = shortenedUrls.reduce(
+    (total, url) => total + url.length,
+    0,
+  );
+  const savedBytes = originalSize - shortenedSize;
+  const savedPercentage = originalSize > 0 ? (savedBytes / originalSize) * 100 : 0;
+
+  return {
+    originalSize,
+    shortenedSize,
+    savedBytes,
+    savedPercentage: Math.round(savedPercentage * 100) / 100, // Round to 2 decimal places
+  };
+};
+
 // Extract URLs from HTML content
 const extractUrlsFromHtml = (htmlContent: string): string[] => {
   const urlRegex = /https?:\/\/[^\s<>"{}|\\^`[\]]+/gi;
@@ -307,6 +334,12 @@ export const processFile = async (input: {
         downloadUrl,
         originalUrls: [],
         shortenedUrls: [],
+        spaceSavings: {
+          originalSize: 0,
+          shortenedSize: 0,
+          savedBytes: 0,
+          savedPercentage: 0,
+        },
         message: "No URLs found in HTML file",
       };
     }
@@ -334,6 +367,9 @@ export const processFile = async (input: {
     // Write processed content to new file
     await fs.writeFile(processedFilePath, processedContent, "utf-8");
 
+    // Calculate space savings
+    const spaceSavings = calculateSpaceSavings(originalUrls, shortenedUrls);
+
     // Generate download URL with full server URL
     const serverUrl =
       process.env.SERVER_URL ?? `http://localhost:${process.env.PORT ?? 3000}`;
@@ -346,6 +382,7 @@ export const processFile = async (input: {
       downloadUrl,
       originalUrls,
       shortenedUrls,
+      spaceSavings,
       message: `Successfully shortened ${originalUrls.length} URLs`,
     };
   } catch (error) {

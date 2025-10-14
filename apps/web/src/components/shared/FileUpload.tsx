@@ -10,6 +10,12 @@ interface FileProcessResult {
   downloadUrl: string;
   originalUrls: string[];
   shortenedUrls: string[];
+  spaceSavings?: {
+    originalSize: number;
+    shortenedSize: number;
+    savedBytes: number;
+    savedPercentage: number;
+  };
   message?: string;
 }
 
@@ -30,7 +36,23 @@ interface UploadState {
   downloadUrl: string | null;
   originalUrls: string[];
   shortenedUrls: string[];
+  spaceSavings?: {
+    originalSize: number;
+    shortenedSize: number;
+    savedBytes: number;
+    savedPercentage: number;
+  };
 }
+
+const formatFileSize = (bytes: number): string => {
+  if (bytes < 1024) {
+    return `${bytes} B`;
+  } else if (bytes < 1024 * 1024) {
+    return `${(bytes / 1024).toFixed(2)} KB`;
+  } else {
+    return `${(bytes / 1024 / 1024).toFixed(2)} MB`;
+  }
+};
 
 export const FileUpload = ({
   onUploadSuccess,
@@ -48,6 +70,7 @@ export const FileUpload = ({
     downloadUrl: null,
     originalUrls: [],
     shortenedUrls: [],
+    spaceSavings: undefined,
   });
 
   const [dragActive, setDragActive] = useState(false);
@@ -155,6 +178,7 @@ export const FileUpload = ({
             downloadUrl: processResult.downloadUrl,
             originalUrls: processResult.originalUrls,
             shortenedUrls: processResult.shortenedUrls,
+            spaceSavings: processResult.spaceSavings,
           }));
           onUploadSuccess?.(processResult);
         } else {
@@ -188,6 +212,7 @@ export const FileUpload = ({
       downloadUrl: null,
       originalUrls: [],
       shortenedUrls: [],
+      spaceSavings: undefined,
     });
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
@@ -253,7 +278,7 @@ export const FileUpload = ({
               </span>
             </div>
             <p className="tw-text-sm tw-text-gray-500">
-              {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
+              {formatFileSize(selectedFile.size)}
             </p>
             <button
               onClick={(e) => {
@@ -359,26 +384,63 @@ export const FileUpload = ({
 
           {/* URL Shortening Results */}
           {uploadState.originalUrls && uploadState.originalUrls.length > 0 && (
-            <div className="tw-p-4 tw-bg-blue-50 tw-border tw-border-blue-200 tw-rounded-md">
-              <h3 className="tw-text-lg tw-font-medium tw-text-blue-900 tw-mb-3">
-                URL Shortening Results
-              </h3>
-              <div className="tw-space-y-2">
-                {uploadState.originalUrls.map((originalUrl, index) => (
-                  <div
-                    key={index}
-                    className="tw-flex tw-items-center tw-space-x-2 tw-text-sm"
-                  >
-                    <span className="tw-text-gray-600 tw-truncate tw-flex-1">
-                      {originalUrl}
-                    </span>
-                    <span className="tw-text-gray-400">→</span>
-                    <span className="tw-text-blue-600 tw-font-medium">
-                      {uploadState.shortenedUrls?.[index] || "Processing..."}
-                    </span>
-                  </div>
-                ))}
+            <div className="tw-space-y-4">
+              <div className="tw-p-4 tw-bg-blue-50 tw-border tw-border-blue-200 tw-rounded-md">
+                <h3 className="tw-text-lg tw-font-medium tw-text-blue-900 tw-mb-3">
+                  URL Shortening Results
+                </h3>
+                <div className="tw-space-y-2">
+                  {uploadState.originalUrls.map((originalUrl, index) => (
+                    <div
+                      key={index}
+                      className="tw-flex tw-items-center tw-space-x-2 tw-text-sm"
+                    >
+                      <span className="tw-text-gray-600 tw-truncate tw-flex-1">
+                        {originalUrl}
+                      </span>
+                      <span className="tw-text-gray-400">→</span>
+                      <span className="tw-text-blue-600 tw-font-medium">
+                        {uploadState.shortenedUrls?.[index] || "Processing..."}
+                      </span>
+                    </div>
+                  ))}
+                </div>
               </div>
+
+              {/* Space Savings */}
+              {uploadState.spaceSavings && uploadState.spaceSavings.savedBytes > 0 && (
+                <div className="tw-p-4 tw-bg-purple-50 tw-border tw-border-purple-200 tw-rounded-md">
+                  <h3 className="tw-text-lg tw-font-medium tw-text-purple-900 tw-mb-3">
+                    Space Savings
+                  </h3>
+                  <div className="tw-grid tw-grid-cols-2 tw-gap-4 tw-text-sm">
+                    <div>
+                      <span className="tw-text-gray-600">Original URLs size:</span>
+                      <span className="tw-ml-2 tw-font-medium">
+                        {formatFileSize(uploadState.spaceSavings.originalSize)}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="tw-text-gray-600">Shortened URLs size:</span>
+                      <span className="tw-ml-2 tw-font-medium">
+                        {formatFileSize(uploadState.spaceSavings.shortenedSize)}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="tw-text-gray-600">Space saved:</span>
+                      <span className="tw-ml-2 tw-font-medium tw-text-purple-600">
+                        {formatFileSize(uploadState.spaceSavings.savedBytes)}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="tw-text-gray-600">Percentage saved:</span>
+                      <span className="tw-ml-2 tw-font-medium tw-text-purple-600">
+                        {uploadState.spaceSavings.savedPercentage.toFixed(1)}%
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </div>

@@ -10,6 +10,12 @@ interface FileProcessResult {
   downloadUrl: string;
   originalUrls: string[];
   shortenedUrls: string[];
+  spaceSavings?: {
+    originalSize: number;
+    shortenedSize: number;
+    savedBytes: number;
+    savedPercentage: number;
+  };
   message?: string;
 }
 
@@ -34,8 +40,7 @@ export default function UrlShortenerPage() {
           </h1>
           <p className="tw-text-lg tw-text-gray-600 tw-max-w-3xl tw-mx-auto">
             Upload your HTML files to automatically find and shorten all URLs,
-            reducing email size and improving deliverability. Perfect for email
-            templates and HTML newsletters.
+            reducing email size and improving deliverability.
           </p>
         </div>
 
