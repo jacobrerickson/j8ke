@@ -45,16 +45,7 @@ export default function PublicLayout({
                 >
                   Home
                 </Link>
-                <Link
-                  href="/about"
-                  className={`tw-text-sm tw-font-medium ${
-                    pathname === "/about"
-                      ? "tw-text-blue-600"
-                      : "tw-text-gray-700 hover:tw-text-gray-900"
-                  }`}
-                >
-                  About
-                </Link>
+
                 <Link
                   href="/form"
                   className={`tw-text-sm tw-font-medium ${
@@ -136,17 +127,7 @@ export default function PublicLayout({
                 >
                   Home
                 </Link>
-                <Link
-                  href="/about"
-                  className={`tw-block tw-px-3 tw-py-2 tw-text-base tw-font-medium ${
-                    pathname === "/about"
-                      ? "tw-bg-blue-50 tw-text-blue-600"
-                      : "tw-text-gray-700 hover:tw-bg-gray-50 hover:tw-text-gray-900"
-                  }`}
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  About
-                </Link>
+
                 <Link
                   href="/form"
                   className={`tw-block tw-px-3 tw-py-2 tw-text-base tw-font-medium ${
