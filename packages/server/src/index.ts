@@ -17,7 +17,22 @@ app.use(cors());
 app.use(express.static("src/public"));
 app.use(express.static("uploads"));
 app.use(express.static("processed"));
-app.use(express.json());
+app.use(express.json({ limit: '50mb' })); // Increase limit for base64 file uploads
+app.use(express.urlencoded({ limit: '50mb', extended: true })); // Also increase URL-encoded limit
+
+// Error handler for payload too large
+app.use((error: any, _req: express.Request, res: express.Response, next: express.NextFunction) => {
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+  if (error && typeof error === 'object' && error.type === 'entity.too.large') {
+    return res.status(413).json({
+      error: {
+        code: 'PAYLOAD_TOO_LARGE',
+        message: 'File too large. Maximum size is 50MB.',
+      },
+    });
+  }
+  next(error);
+});
 
 // Use the routers
 app.use(filesRouter);

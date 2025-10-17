@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Large Long Links Generator</title>
+  <style>
+    body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial; margin: 20px; }
+    header { display:flex; gap:12px; align-items:center; margin-bottom:12px; }
+    input[type=number] { width:100px; padding:6px; }
+    button { padding:8px 12px; cursor:pointer; }
+    .controls { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+    #progress { margin-top:8px; font-size:0.95rem; color:#444; }
+    #links { margin-top:18px; max-height:70vh; overflow:auto; border:1px solid #eee; padding:12px; background:#fff; }
+    .link-item { margin: 4px 0; word-break: break-all; } /* allow long URLs to wrap */
+    .small { font-size:0.9rem; color:#666; }
+    .danger { color:#b00; }
+    footer { margin-top: 14px; font-size:0.9rem; color:#666; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1 style="margin:0; font-size:1.2rem;">Large Long Links Generator</h1>
+    <div class="small">Create many long links for testing</div>
+  </header>
+
+  <div class="controls">
+    <label>Number of links: <input id="count" type="number" min="1" max="20000" value="2000" /></label>
+    <label>Payload length (chars per URL): <input id="payloadLen" type="number" min="50" max="5000" value="800" /></label>
+    <button id="generate">Generate links</button>
+    <button id="clear">Clear</button>
+    <button id="download">Download HTML with links</button>
+  </div>
+
+  <div id="progress" class="small">Ready. Default: 2000 links × ~800 chars each.</div>
+
+  <div id="links" aria-live="polite"></div>
+
+  <footer>
+    Tip: Reduce the number if the browser becomes slow. Each generated URL will include a long repeating payload to make URLs long; change payload length to increase/decrease per-URL size.
+  </footer>
+
+  <script>
+    // Utility: make a deterministic-ish long payload for each index
+    function makePayload(index, length) {
+      // base pattern — keeps it readable but long
+      const base = "payload_" + index + "_";
+      // repeat a somewhat random-ish chunk generated from index
+      const chunk = (index.toString(36) + "-x-").repeat(10);
+      // build until we reach requested length
+      let s = base + chunk;
+      while (s.length < length) {
+        s += chunk + index.toString(36);
+      }
+      return s.slice(0, length);
+    }
+
+    function makeLongUrl(index, payloadLen) {
+      // base, path, and query parts to ensure a long URL
+      const domain = "https://example.com";
+      const path = "/very/long/path/segment/" + index + "/";
+      const q = "id=" + index + "&ts=" + Date.now();
+      const payload = makePayload(index, payloadLen);
+      // additional structured params to lengthen the URL safely
+      const more = "&data=" + encodeURIComponent(payload);
+      return domain + path + "?" + q + more;
+    }
+
+    // DOM helpers
+    const linksEl = document.getElementById("links");
+    const progressEl = document.getElementById("progress");
+    const countInput = document.getElementById("count");
+    const payloadInput = document.getElementById("payloadLen");
+    const genBtn = document.getElementById("generate");
+    const clearBtn = document.getElementById("clear");
+    const downloadBtn = document.getElementById("download");
+
+    function clearLinks() {
+      linksEl.innerHTML = "";
+      progressEl.textContent = "Cleared.";
+    }
+
+    // Generate in chunks to avoid blocking the UI too long
+    async function generateLinks() {
+      const count = Math.min(20000, Math.max(1, parseInt(countInput.value, 10) || 0));
+      const payloadLen = Math.min(5000, Math.max(10, parseInt(payloadInput.value, 10) || 0));
+      clearLinks();
+      progressEl.textContent = "Generating " + count + " links (payload " + payloadLen + " chars)...";
+
+      const frag = document.createDocumentFragment();
+      const batch = 200; // adjust batch size for responsiveness
+      for (let i = 1; i <= count; i++) {
+        const url = makeLongUrl(i, payloadLen);
+
+        const a = document.createElement("a");
+        a.href = url;
+        a.target = "_blank";
+        a.rel = "noopener noreferrer";
+        a.textContent = url;
+        a.className = "link-item";
+
+        const div = document.createElement("div");
+        div.appendChild(a);
+        frag.appendChild(div);
+
+        // insert batches
+        if (i % batch === 0 || i === count) {
+          linksEl.appendChild(frag.cloneNode(true));
+          frag.textContent = ""; // clear
+          // update progress
+          progressEl.textContent = "Generated " + i + " / " + count + " links.";
+          // yield to browser so it can repaint
+          await new Promise(r => setTimeout(r, 0));
+        }
+      }
+
+      progressEl.textContent = "Finished: " + count + " links generated.";
+    }
+
+    // Build an HTML string containing the links currently shown and prompt download
+    function downloadHtmlWithLinks() {
+      const nodes = linksEl.querySelectorAll("a");
+      if (!nodes.length) {
+        alert("No links to download. Generate links first.");
+        return;
+      }
+      const arr = Array.from(nodes).map(a => a.href);
+      const lines = arr.map(url => '<a href="' + url.replace(/"/g, "&quot;") + '" target="_blank" rel="noopener noreferrer">' + url + '</a><br/>');
+      const full = `<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>Exported Links (${arr.length})</title></head>
+<body>
+<h2>Exported Links (${arr.length})</h2>
+<div>${lines.join("\\n")}</div>
+</body>
+</html>`;
+      const blob = new Blob([full], { type: "text/html;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "exported-long-links.html";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    genBtn.addEventListener("click", () => {
+      genBtn.disabled = true;
+      generateLinks().finally(() => genBtn.disabled = false);
+    });
+    clearBtn.addEventListener("click", clearLinks);
+    downloadBtn.addEventListener("click", downloadHtmlWithLinks);
+
+    // quick demo: generate a small set on load (comment out if undesired)
+    // window.addEventListener("load", () => { /* no auto-generate */ });
+  </script>
+</body>
+</html>

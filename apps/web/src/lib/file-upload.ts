@@ -54,9 +54,21 @@ export const uploadFileToServer = async (
     const result = await client.fileUpload.upload.mutate(uploadPayload);
     return result;
   } catch (error) {
-    throw new Error(
-      `Upload failed: ${error instanceof Error ? error.message : "Unknown error"}`,
-    );
+    // Handle specific error cases
+    if (error instanceof Error) {
+      if (error.message.includes('Unexpected token')) {
+        throw new Error(
+          'Upload failed: File too large or server error. Please try a smaller file or contact support.',
+        );
+      }
+      if (error.message.includes('PAYLOAD_TOO_LARGE')) {
+        throw new Error(
+          'Upload failed: File is too large. Maximum size is 50MB.',
+        );
+      }
+      throw new Error(`Upload failed: ${error.message}`);
+    }
+    throw new Error('Upload failed: Unknown error');
   }
 };
 

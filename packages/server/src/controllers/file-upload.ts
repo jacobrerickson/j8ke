@@ -225,6 +225,7 @@ const createUrlMapping = async (
 
 // URL shortening service - creates working shortened URLs using database
 const shortenUrl = async (url: string): Promise<string> => {
+  console.log('Shortening URL:', url);
   const crypto = await import("crypto");
   const hash = crypto
     .createHash("md5")
@@ -326,10 +327,13 @@ export const processFile = async (input: {
     const processedFilePath = path.join(PROCESSED_DIR, processedFileName);
 
     // Read the HTML file
+    console.log('Processing file:', sourcePath);
     const htmlContent = await fs.readFile(sourcePath, "utf-8");
 
     // Extract URLs from the HTML
+    console.log('Extracting URLs from HTML...');
     const originalUrls = extractUrlsFromHtml(htmlContent);
+    console.log('Number of original URLs:', originalUrls.length);
 
     if (originalUrls.length === 0) {
       // Generate download URL with full server URL
@@ -356,6 +360,7 @@ export const processFile = async (input: {
     }
 
     // Shorten URLs
+    console.log('Shortening URLs...');
     const shortenedUrls: string[] = [];
     for (const url of originalUrls) {
       const shortened = await shortenUrl(url);
@@ -363,6 +368,7 @@ export const processFile = async (input: {
     }
 
     // Replace URLs in HTML content
+    console.log('Replacing URLs in HTML...');
     let processedContent = htmlContent;
     for (let i = 0; i < originalUrls.length; i++) {
       const originalUrl = originalUrls[i];
@@ -376,9 +382,11 @@ export const processFile = async (input: {
     }
 
     // Write processed content to new file
+    console.log('Writing processed content to new file...');
     await fs.writeFile(processedFilePath, processedContent, "utf-8");
 
     // Calculate space savings
+    console.log('Calculating space savings...');
     const spaceSavings = calculateSpaceSavings(originalUrls, shortenedUrls);
 
     // Generate download URL with full server URL
