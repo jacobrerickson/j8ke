@@ -35,10 +35,21 @@ export default function Home() {
                     </span>
                   </div>
                   <ul className="tw-mt-3 tw-list-disc tw-list-inside tw-text-gray-600 tw-space-y-1">
-                    <li>Led development of full-stack web application</li>
+                    <li>Built a full-stack TypeScript monorepo with Next.js web app and Express API using tRPC for end-to-end type safety</li>
                     <li>
-                      Communicated with stakeholders to define product
-                      requirements and focus
+                      Implemented real-time bidirectional communication using Socket.io with JWT authentication, automatic token refresh, and organization-based chat system for brand-athlete messaging
+                    </li>
+                    <li>
+                      Developed payment processing system with Stripe integration including payment intents, webhooks, subscription management, and Stripe Connect marketplace for automated athlete payouts
+                    </li>
+                    <li>
+                      Architected multi-tenant SaaS platform with role-based access control, organization management, contract generation with digital signatures, and automated workflow transitions
+                    </li>
+                    <li>
+                      Built scalable file management system using AWS S3 with presigned URLs and automated PDF generation for contracts
+                    </li>
+                    <li>
+                      Implemented automated background job processing using GitHub Actions for scheduled tasks like trial expiration, payout processing, and notification reminders
                     </li>
                   </ul>
                 </div>
