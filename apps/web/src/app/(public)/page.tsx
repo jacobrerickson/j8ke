@@ -27,7 +27,9 @@ export default function Home() {
                         Full-Stack Engineer/Product Manager
                       </h4>
                       <p className="tw-text-md tw-font-medium tw-text-blue-600">
-                        <a href="https://www.aimsmarketing.ai">Athlete &amp; Influencer Marketing Solutions</a>
+                        <a href="https://www.aimsmarketing.ai">
+                          Athlete &amp; Influencer Marketing Solutions
+                        </a>
                       </p>
                     </div>
                     <span className="tw-text-sm tw-text-gray-500 tw-mt-1 sm:tw-mt-0">
@@ -35,21 +37,36 @@ export default function Home() {
                     </span>
                   </div>
                   <ul className="tw-mt-3 tw-list-disc tw-list-inside tw-text-gray-600 tw-space-y-1">
-                    <li>Built a full-stack TypeScript monorepo with Next.js web app and Express API using tRPC for end-to-end type safety</li>
                     <li>
-                      Implemented real-time bidirectional communication using Socket.io with JWT authentication, automatic token refresh, and organization-based chat system for brand-athlete messaging
+                      Built a full-stack TypeScript monorepo with Next.js web
+                      app and Express API using tRPC for end-to-end type safety
                     </li>
                     <li>
-                      Developed payment processing system with Stripe integration including payment intents, webhooks, subscription management, and Stripe Connect marketplace for automated athlete payouts
+                      Implemented real-time bidirectional communication using
+                      Socket.io with JWT authentication, automatic token
+                      refresh, and organization-based chat system for
+                      brand-athlete messaging
                     </li>
                     <li>
-                      Architected multi-tenant SaaS platform with role-based access control, organization management, contract generation with digital signatures, and automated workflow transitions
+                      Developed payment processing system with Stripe
+                      integration including payment intents, webhooks,
+                      subscription management, and Stripe Connect marketplace
+                      for automated athlete payouts
                     </li>
                     <li>
-                      Built scalable file management system using AWS S3 with presigned URLs and automated PDF generation for contracts
+                      Architected multi-tenant SaaS platform with role-based
+                      access control, organization management, contract
+                      generation with digital signatures, and automated workflow
+                      transitions
                     </li>
                     <li>
-                      Implemented automated background job processing using GitHub Actions for scheduled tasks like trial expiration, payout processing, and notification reminders
+                      Built scalable file management system using AWS S3 with
+                      presigned URLs and automated PDF generation for contracts
+                    </li>
+                    <li>
+                      Implemented automated background job processing using
+                      GitHub Actions for scheduled tasks like trial expiration,
+                      payout processing, and notification reminders
                     </li>
                   </ul>
                 </div>
@@ -70,8 +87,18 @@ export default function Home() {
                   </div>
                   <ul className="tw-mt-3 tw-list-disc tw-list-inside tw-text-gray-600 tw-space-y-1">
                     <li>
-                      Collaborated with designers and data scientists to
-                      implement complex AI features from front-end to back-end
+                      Developed comprehensive anti-dumping and CVD analysis
+                      system with automated job queuing, real-time status
+                      tracking, and email notifications for failed processing
+                      jobs
+                    </li>
+                    <li>
+                      Architected and developed a comprehensive CRM system with
+                      Google Calendar API integration, contact management, and
+                      communication tracking, featuring real-time updates,
+                      automated email history fetching, and multi-user
+                      collaboration capabilities supporting both email and SMS
+                      through Twilio
                     </li>
                   </ul>
                 </div>
@@ -83,9 +110,7 @@ export default function Home() {
                         Founder/Full-Stack Engineer
                       </h4>
                       <p className="tw-text-md tw-font-medium tw-text-purple-600">
-                        <a href="https://web.sandbox.ing/">
-                          Sandbox Program
-                        </a>
+                        <a href="https://web.sandbox.ing/">Sandbox Program</a>
                       </p>
                     </div>
                     <span className="tw-text-sm tw-text-gray-500 tw-mt-1 sm:tw-mt-0">
@@ -106,19 +131,26 @@ export default function Home() {
                   <div className="tw-flex tw-flex-col sm:tw-flex-row sm:tw-justify-between sm:tw-items-start">
                     <div>
                       <h4 className="tw-text-lg tw-font-semibold tw-text-gray-900">
-                        Website Technician
+                        Website/IT Technician
                       </h4>
                       <p className="tw-text-md tw-font-medium tw-text-yellow-600">
                         Utah State University
                       </p>
                     </div>
                     <span className="tw-text-sm tw-text-gray-500 tw-mt-1 sm:tw-mt-0">
-                      April, 2024 - April, 2025
+                      January, 2022 - April, 2025
                     </span>
                   </div>
                   <ul className="tw-mt-3 tw-list-disc tw-list-inside tw-text-gray-600 tw-space-y-1">
                     <li>
-                      Worked with university content providers to best display relevant information on webpages, mostly working with HTML and CSS and applying best-practices for accessibility
+                      Worked with university content providers to best display
+                      relevant information on webpages, mostly working with HTML
+                      and CSS and applying best-practices for accessibility
+                    </li>
+                    <li>
+                      Developed technical expertise across many university
+                      systems to support students and faculty in-person and
+                      digitally
                     </li>
                   </ul>
                 </div>
