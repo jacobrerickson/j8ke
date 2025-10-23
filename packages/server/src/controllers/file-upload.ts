@@ -280,11 +280,20 @@ const calculateSpaceSavings = (
 
 // Extract URLs from HTML content
 const extractUrlsFromHtml = (htmlContent: string): string[] => {
-  const urlRegex = /https?:\/\/[^\s<>"{}|\\^`[\]]+/gi;
+  // More robust URL regex that requires at least a domain with TLD
+  // This avoids matching incomplete URLs like "https://" in Django templates
+  const urlRegex = /https?:\/\/[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*\.[a-zA-Z]{2,}[^\s<>"{}|\\^`[\]]*/gi;
   const urls = htmlContent.match(urlRegex) ?? [];
 
   // Remove duplicates and filter out common non-content URLs
   const uniqueUrls = [...new Set(urls)].filter((url) => {
+    // Additional validation: ensure URL has proper structure
+    try {
+      new URL(url);
+    } catch {
+      return false; // Invalid URL structure
+    }
+
     // Filter out common non-content URLs
     const excludePatterns = [
       /\.(css|js|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot)$/i,
@@ -292,6 +301,9 @@ const extractUrlsFromHtml = (htmlContent: string): string[] => {
       /fonts\.googleapis\.com/i,
       /cdn\./i,
       /static\./i,
+      // Filter out incomplete URLs that might be from templates
+      /^https?:\/\/\s*$/i,
+      /^https?:\/\/['"`]/i,
     ];
 
     return !excludePatterns.some((pattern) => pattern.test(url));

@@ -2,6 +2,7 @@
 
 import { useCallback, useRef, useState } from "react";
 import { processFileOnServer, uploadFileToServer } from "@/lib/file-upload";
+import Arkanoid from "./Arkanoid";
 
 interface FileProcessResult {
   success: boolean;
@@ -77,6 +78,7 @@ export const FileUpload = ({
 
   const [dragActive, setDragActive] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [userWantsToPlayGame, setUserWantsToPlayGame] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const validateFile = useCallback(
@@ -222,8 +224,16 @@ export const FileUpload = ({
     }
   };
 
+  // Check if file is larger than 1MB (1000KB)
+  const isLargeFile = selectedFile && selectedFile.size > 500 * 1024;
+  const isProcessing = uploadState.isUploading || uploadState.isProcessing;
+  const showGamePrompt = isProcessing && isLargeFile && !userWantsToPlayGame;
+  const showArkanoidGame = isProcessing && isLargeFile && userWantsToPlayGame;
+
   return (
     <div className={`tw-w-full tw-max-w-2xl tw-mx-auto ${className}`}>
+
+
       {/* Upload Area */}
       <div
         className={`
@@ -322,6 +332,38 @@ export const FileUpload = ({
           </div>
         )}
       </div>
+      {/* Game Prompt for Large Files */}
+      {showGamePrompt && (
+        <div className="tw-mt-6 tw-p-6 tw-bg-blue-50 tw-border tw-border-blue-200 tw-rounded-lg tw-flex tw-flex-col tw-items-center tw-justify-center tw-text-center">
+          <p className="tw-text-lg tw-font-medium tw-text-blue-900 tw-mb-4">
+            This may take a while. Would you like to play a game while we process?
+          </p>
+          <div className="tw-flex tw-gap-3">
+            <button
+              onClick={() => setUserWantsToPlayGame(true)}
+              className="tw-px-6 tw-py-2 tw-bg-green-500 hover:tw-bg-green-600 tw-text-white tw-rounded-md tw-font-semibold tw-transition-colors"
+            >
+              Yes, Let&apos;s Play!
+            </button>
+            <button
+              onClick={() => setUserWantsToPlayGame(false)}
+              className="tw-px-6 tw-py-2 tw-bg-gray-500 hover:tw-bg-gray-600 tw-text-white tw-rounded-md tw-font-semibold tw-transition-colors"
+            >
+              No Thanks
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Arkanoid Game for Large Files */}
+      {showArkanoidGame && (
+        <div className="tw-mt-6 tw-p-4 tw-rounded-lg tw-flex tw-flex-col tw-items-center tw-justify-center">
+          <p className="tw-text-white tw-mb-4 tw-text-center tw-text-sm">
+            Processing your file... Enjoy the game!
+          </p>
+          <Arkanoid />
+        </div>
+      )}
 
       {/* Status Messages */}
       {uploadState.error && (
