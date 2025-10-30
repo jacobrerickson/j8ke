@@ -5,29 +5,74 @@
 :root {
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+
+  /* Light theme colors */
+  --background-rgb: 255, 255, 255;
+  --foreground-rgb: 17, 24, 39;
+  --card-rgb: 255, 255, 255;
+  --card-foreground-rgb: 17, 24, 39;
+  --border-rgb: 229, 231, 235;
+  --muted-rgb: 249, 250, 251;
+  --muted-foreground-rgb: 107, 114, 128;
+}
+
+.tw-dark {
+  /* Dark theme colors */
+  --background-rgb: 3, 7, 18;
+  --foreground-rgb: 248, 250, 252;
+  --card-rgb: 15, 23, 42;
+  --card-foreground-rgb: 248, 250, 252;
+  --border-rgb: 30, 41, 59;
+  --muted-rgb: 15, 23, 42;
+  --muted-foreground-rgb: 148, 163, 184;
 }
 
 @layer components {
   .btn {
-    @apply tw-w-full tw-rounded-lg tw-bg-blue-600 tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-text-white hover:tw-bg-blue-700 focus:tw-outline-none focus:tw-ring-2 focus:tw-ring-blue-500 focus:tw-ring-offset-2 disabled:tw-opacity-50 disabled:tw-cursor-not-allowed tw-flex tw-items-center tw-justify-center;
+    @apply tw-w-full tw-rounded-lg tw-bg-blue-600 tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-text-white hover:tw-bg-blue-700 focus:tw-outline-none focus:tw-ring-2 focus:tw-ring-blue-500 focus:tw-ring-offset-2 disabled:tw-opacity-50 disabled:tw-cursor-not-allowed tw-flex tw-items-center tw-justify-center tw-transition-colors tw-duration-200;
   }
 
   .btn-secondary {
-    @apply tw-w-full tw-rounded-lg tw-bg-gray-600 tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-text-white hover:tw-bg-gray-700 focus:tw-outline-none focus:tw-ring-2 focus:tw-ring-gray-500 focus:tw-ring-offset-2 disabled:tw-opacity-50 disabled:tw-cursor-not-allowed tw-flex tw-items-center tw-justify-center;
+    @apply tw-w-full tw-rounded-lg tw-bg-gray-600 tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-text-white hover:tw-bg-gray-700 focus:tw-outline-none focus:tw-ring-2 focus:tw-ring-gray-500 focus:tw-ring-offset-2 disabled:tw-opacity-50 disabled:tw-cursor-not-allowed tw-flex tw-items-center tw-justify-center dark:tw-bg-gray-700 dark:hover:tw-bg-gray-600 tw-transition-colors tw-duration-200;
   }
 
   .btn-outline {
-    @apply tw-w-full tw-rounded-lg tw-border tw-border-gray-300 tw-bg-white tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-text-gray-700 hover:tw-bg-gray-50 focus:tw-outline-none focus:tw-ring-2 focus:tw-ring-blue-500 focus:tw-ring-offset-2 disabled:tw-opacity-50 disabled:tw-cursor-not-allowed tw-flex tw-items-center tw-justify-center;
+    @apply tw-w-full tw-rounded-lg tw-border tw-border-gray-300 tw-bg-white tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-text-gray-700 hover:tw-bg-gray-50 focus:tw-outline-none focus:tw-ring-2 focus:tw-ring-blue-500 focus:tw-ring-offset-2 disabled:tw-opacity-50 disabled:tw-cursor-not-allowed tw-flex tw-items-center tw-justify-center dark:tw-bg-gray-800 dark:tw-border-gray-600 dark:tw-text-gray-200 dark:hover:tw-bg-gray-700 tw-transition-colors tw-duration-200;
+  }
+
+  /* Theme transition utilities */
+  .theme-transition {
+    @apply tw-transition-all tw-duration-300 tw-ease-in-out;
+  }
+
+  .theme-transition-fast {
+    @apply tw-transition-all tw-duration-200 tw-ease-in-out;
+  }
+
+  .theme-transition-slow {
+    @apply tw-transition-all tw-duration-500 tw-ease-in-out;
   }
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-rgb: 0, 0, 0;
-  }
+/* Smooth theme transitions */
+* {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Disable transitions for elements that shouldn't animate */
+*:focus,
+*:focus-visible,
+*:active,
+input,
+textarea,
+select,
+button:active {
+  transition: none;
 }
 
 body {
   font-family: var(--font-sans), Arial, sans-serif;
+  /* Remove background-color and color to let Tailwind classes take precedence */
+  /* background-color: rgb(var(--background-rgb)); */
+  /* color: rgb(var(--foreground-rgb)); */
 }

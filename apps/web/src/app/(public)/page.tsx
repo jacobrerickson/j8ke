@@ -2,41 +2,41 @@
 
 export default function Home() {
   return (
-    <div className="tw-relative tw-bg-white tw-overflow-hidden">
+    <div className="tw-relative tw-bg-white dark:tw-bg-gray-900 tw-overflow-hidden tw-transition-colors tw-duration-300 tw-ease-in-out">
       {/* About Section */}
-      <div className="tw-py-24 sm:tw-py-32">
+      <div className="tw-py-24 sm:tw-py-16">
         <div className="tw-mx-auto tw-max-w-7xl tw-px-6 lg:tw-px-8">
           <div className="tw-mx-auto tw-max-w-2xl">
-            <h2 className="tw-text-2xl tw-font-bold tw-tracking-tight tw-text-gray-900 sm:tw-text-6xl">
+            <h2 className="tw-text-2xl tw-font-bold tw-tracking-tight tw-text-gray-900 dark:tw-text-gray-100 sm:tw-text-6xl">
               About Me
             </h2>
-            <p className="tw-mt-6 tw-text-lg tw-leading-8 tw-text-gray-600">
+            <p className="tw-mt-6 tw-text-lg tw-leading-8 tw-text-gray-600 dark:tw-text-gray-300">
               I&apos;m a full-stack engineer with a passion for problem solving.
               Included on this site are a couple small tools I&apos;ve built.
             </p>
             {/* Experience Section */}
             <div className="tw-mt-16">
-              <h3 className="tw-text-2xl tw-font-bold tw-tracking-tight tw-text-gray-900">
+              <h3 className="tw-text-2xl tw-font-bold tw-tracking-tight tw-text-gray-900 dark:tw-text-gray-100">
                 Professional Experience
               </h3>
               <div className="tw-mt-6 tw-space-y-6">
                 <div className="tw-border-l-4 tw-border-blue-500 tw-pl-4">
                   <div className="tw-flex tw-flex-col sm:tw-flex-row sm:tw-justify-between sm:tw-items-start">
                     <div>
-                      <h4 className="tw-text-lg tw-font-semibold tw-text-gray-900">
+                      <h4 className="tw-text-lg tw-font-semibold tw-text-gray-900 dark:tw-text-gray-100">
                         Full-Stack Engineer/Product Manager
                       </h4>
-                      <p className="tw-text-md tw-font-medium tw-text-blue-600">
+                      <p className="tw-text-md tw-font-medium tw-text-blue-600 dark:tw-text-blue-400">
                         <a href="https://www.aimsmarketing.ai">
                           Athlete &amp; Influencer Marketing Solutions
                         </a>
                       </p>
                     </div>
-                    <span className="tw-text-sm tw-text-gray-500 tw-mt-1 sm:tw-mt-0">
+                    <span className="tw-text-sm tw-text-gray-500 dark:tw-text-gray-400 tw-mt-1 sm:tw-mt-0">
                       April, 2025 - Present
                     </span>
                   </div>
-                  <ul className="tw-mt-3 tw-list-disc tw-list-inside tw-text-gray-600 tw-space-y-1">
+                  <ul className="tw-mt-3 tw-list-disc tw-list-inside tw-text-gray-600 dark:tw-text-gray-300 tw-space-y-1">
                     <li>
                       Built a full-stack TypeScript monorepo with Next.js web
                       app and Express API using tRPC for end-to-end type safety
@@ -74,18 +74,18 @@ export default function Home() {
                 <div className="tw-border-l-4 tw-border-green-500 tw-pl-4">
                   <div className="tw-flex tw-flex-col sm:tw-flex-row sm:tw-justify-between sm:tw-items-start">
                     <div>
-                      <h4 className="tw-text-lg tw-font-semibold tw-text-gray-900">
+                      <h4 className="tw-text-lg tw-font-semibold tw-text-gray-900 dark:tw-text-gray-100">
                         Full-Stack Engineer
                       </h4>
-                      <p className="tw-text-md tw-font-medium tw-text-green-600">
+                      <p className="tw-text-md tw-font-medium tw-text-green-600 dark:tw-text-green-400">
                         <a href="https://www.tarifflo.com">Tarifflo</a>
                       </p>
                     </div>
-                    <span className="tw-text-sm tw-text-gray-500 tw-mt-1 sm:tw-mt-0">
+                    <span className="tw-text-sm tw-text-gray-500 dark:tw-text-gray-400 tw-mt-1 sm:tw-mt-0">
                       January, 2025 - April, 2025
                     </span>
                   </div>
-                  <ul className="tw-mt-3 tw-list-disc tw-list-inside tw-text-gray-600 tw-space-y-1">
+                  <ul className="tw-mt-3 tw-list-disc tw-list-inside tw-text-gray-600 dark:tw-text-gray-300 tw-space-y-1">
                     <li>
                       Developed comprehensive anti-dumping and CVD analysis
                       system with automated job queuing, real-time status
@@ -106,18 +106,18 @@ export default function Home() {
                 <div className="tw-border-l-4 tw-border-purple-500 tw-pl-4">
                   <div className="tw-flex tw-flex-col sm:tw-flex-row sm:tw-justify-between sm:tw-items-start">
                     <div>
-                      <h4 className="tw-text-lg tw-font-semibold tw-text-gray-900">
+                      <h4 className="tw-text-lg tw-font-semibold tw-text-gray-900 dark:tw-text-gray-100">
                         Founder/Full-Stack Engineer
                       </h4>
-                      <p className="tw-text-md tw-font-medium tw-text-purple-600">
+                      <p className="tw-text-md tw-font-medium tw-text-purple-600 dark:tw-text-purple-400">
                         <a href="https://web.sandbox.ing/">Sandbox Program</a>
                       </p>
                     </div>
-                    <span className="tw-text-sm tw-text-gray-500 tw-mt-1 sm:tw-mt-0">
+                    <span className="tw-text-sm tw-text-gray-500 dark:tw-text-gray-400 tw-mt-1 sm:tw-mt-0">
                       May, 2024 - April, 2025
                     </span>
                   </div>
-                  <ul className="tw-mt-3 tw-list-disc tw-list-inside tw-text-gray-600 tw-space-y-1">
+                  <ul className="tw-mt-3 tw-list-disc tw-list-inside tw-text-gray-600 dark:tw-text-gray-300 tw-space-y-1">
                     <li>
                       As a part of this program, I worked with students across
                       different colleges to build and launch a tech startup.
@@ -130,18 +130,18 @@ export default function Home() {
                 <div className="tw-border-l-4 tw-border-yellow-500 tw-pl-4">
                   <div className="tw-flex tw-flex-col sm:tw-flex-row sm:tw-justify-between sm:tw-items-start">
                     <div>
-                      <h4 className="tw-text-lg tw-font-semibold tw-text-gray-900">
+                      <h4 className="tw-text-lg tw-font-semibold tw-text-gray-900 dark:tw-text-gray-100">
                         Website/IT Technician
                       </h4>
-                      <p className="tw-text-md tw-font-medium tw-text-yellow-600">
+                      <p className="tw-text-md tw-font-medium tw-text-yellow-600 dark:tw-text-yellow-400">
                         Utah State University
                       </p>
                     </div>
-                    <span className="tw-text-sm tw-text-gray-500 tw-mt-1 sm:tw-mt-0">
+                    <span className="tw-text-sm tw-text-gray-500 dark:tw-text-gray-400 tw-mt-1 sm:tw-mt-0">
                       January, 2022 - April, 2025
                     </span>
                   </div>
-                  <ul className="tw-mt-3 tw-list-disc tw-list-inside tw-text-gray-600 tw-space-y-1">
+                  <ul className="tw-mt-3 tw-list-disc tw-list-inside tw-text-gray-600 dark:tw-text-gray-300 tw-space-y-1">
                     <li>
                       Worked with university content providers to best display
                       relevant information on webpages, mostly working with HTML
@@ -158,15 +158,15 @@ export default function Home() {
             </div>
             <div className="tw-mt-16 tw-space-y-16">
               <div>
-                <h3 className="tw-text-2xl tw-font-bold tw-tracking-tight tw-text-gray-900">
+                <h3 className="tw-text-2xl tw-font-bold tw-tracking-tight tw-text-gray-900 dark:tw-text-gray-100">
                   Website built with:
                 </h3>
                 <div className="tw-mt-6 tw-space-y-4">
                   <div>
-                    <h4 className="tw-text-lg tw-font-semibold tw-text-gray-900">
+                    <h4 className="tw-text-lg tw-font-semibold tw-text-gray-900 dark:tw-text-gray-100">
                       Frontend
                     </h4>
-                    <ul className="tw-mt-2 tw-list-disc tw-list-inside tw-text-gray-600">
+                    <ul className="tw-mt-2 tw-list-disc tw-list-inside tw-text-gray-600 dark:tw-text-gray-300">
                       <li>Next.js 14 with App Router</li>
                       <li>TypeScript</li>
                       <li>Tailwind CSS</li>
@@ -174,10 +174,10 @@ export default function Home() {
                     </ul>
                   </div>
                   <div>
-                    <h4 className="tw-text-lg tw-font-semibold tw-text-gray-900">
+                    <h4 className="tw-text-lg tw-font-semibold tw-text-gray-900 dark:tw-text-gray-100">
                       Backend
                     </h4>
-                    <ul className="tw-mt-2 tw-list-disc tw-list-inside tw-text-gray-600">
+                    <ul className="tw-mt-2 tw-list-disc tw-list-inside tw-text-gray-600 dark:tw-text-gray-300">
                       <li>tRPC for type-safe APIs</li>
                       <li>MongoDB</li>
                       <li>Mongoose ODM</li>

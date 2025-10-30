@@ -3,6 +3,14 @@
 import { useCallback, useRef, useState } from "react";
 import { processFileOnServer, uploadFileToServer } from "@/lib/file-upload";
 import Arkanoid from "./Arkanoid";
+import {
+  CheckCircleIcon,
+  CloudArrowUpIcon
+} from "@heroicons/react/24/outline";
+import {
+  XCircleIcon as XCircleIconSolid,
+  CheckCircleIcon as CheckCircleIconSolid
+} from "@heroicons/react/24/solid";
 
 interface FileProcessResult {
   success: boolean;
@@ -240,8 +248,8 @@ export const FileUpload = ({
           tw-relative tw-border-2 tw-border-dashed tw-rounded-lg tw-p-8 tw-text-center tw-transition-colors
           ${
             dragActive
-              ? "tw-border-blue-500 tw-bg-blue-50"
-              : "tw-border-gray-300 hover:tw-border-gray-400"
+              ? "tw-border-blue-500 tw-bg-blue-50 dark:tw-bg-blue-900/20"
+              : "tw-border-gray-300 hover:tw-border-gray-400 dark:tw-border-gray-600 dark:hover:tw-border-gray-500"
           }
           ${
             uploadState.isUploading || uploadState.isProcessing
@@ -273,19 +281,7 @@ export const FileUpload = ({
         ) : selectedFile ? (
           <div className="tw-space-y-4">
             <div className="tw-flex tw-items-center tw-justify-center tw-space-x-2">
-              <svg
-                className="tw-w-8 tw-h-8 tw-text-green-500"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
+              <CheckCircleIcon className="tw-w-8 tw-h-8 tw-text-green-500" />
               <span className="tw-text-lg tw-font-medium tw-text-green-600">
                 {selectedFile.name}
               </span>
@@ -298,34 +294,22 @@ export const FileUpload = ({
                 e.stopPropagation();
                 uploadFile();
               }}
-              className="tw-bg-blue-500 hover:tw-bg-blue-600 tw-text-white tw-px-6 tw-py-2 tw-rounded-md tw-transition-colors"
+              className="tw-bg-blue-500 hover:tw-bg-blue-600 dark:tw-bg-blue-600 dark:hover:tw-bg-blue-700 tw-text-white tw-px-6 tw-py-2 tw-rounded-md tw-transition-colors"
             >
               Shorten URLs in HTML
             </button>
           </div>
         ) : (
           <div className="tw-space-y-4">
-            <svg
-              className="tw-mx-auto tw-h-12 tw-w-12 tw-text-gray-400"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
-              />
-            </svg>
+            <CloudArrowUpIcon className="tw-mx-auto tw-h-12 tw-w-12 tw-text-gray-400 dark:tw-text-gray-500" />
             <div>
-              <p className="tw-text-lg tw-font-medium tw-text-gray-900">
+              <p className="tw-text-lg tw-font-medium tw-text-gray-900 dark:tw-text-gray-100">
                 Drop your HTML file here, or click to browse
               </p>
-              <p className="tw-text-sm tw-text-gray-500 tw-mt-2">
+              <p className="tw-text-sm tw-text-gray-500 dark:tw-text-gray-400 tw-mt-2">
                 Max file size: {maxFileSize}MB
               </p>
-              <p className="tw-text-xs tw-text-gray-400 tw-mt-1">
+              <p className="tw-text-xs tw-text-gray-400 dark:tw-text-gray-500 tw-mt-1">
                 Only HTML files (.html, .htm) are supported
               </p>
             </div>
@@ -334,20 +318,20 @@ export const FileUpload = ({
       </div>
       {/* Game Prompt for Large Files */}
       {showGamePrompt && (
-        <div className="tw-mt-6 tw-p-6 tw-bg-blue-50 tw-border tw-border-blue-200 tw-rounded-lg tw-flex tw-flex-col tw-items-center tw-justify-center tw-text-center">
-          <p className="tw-text-lg tw-font-medium tw-text-blue-900 tw-mb-4">
+        <div className="tw-mt-6 tw-p-6 tw-bg-blue-50 dark:tw-bg-blue-900/20 tw-border tw-border-blue-200 dark:tw-border-blue-800 tw-rounded-lg tw-flex tw-flex-col tw-items-center tw-justify-center tw-text-center">
+          <p className="tw-text-lg tw-font-medium tw-text-blue-900 dark:tw-text-blue-200 tw-mb-4">
             This may take a while. Would you like to play a game while we process?
           </p>
           <div className="tw-flex tw-gap-3">
             <button
               onClick={() => setUserWantsToPlayGame(true)}
-              className="tw-px-6 tw-py-2 tw-bg-green-500 hover:tw-bg-green-600 tw-text-white tw-rounded-md tw-font-semibold tw-transition-colors"
+              className="tw-px-6 tw-py-2 tw-bg-green-500 hover:tw-bg-green-600 dark:tw-bg-green-600 dark:hover:tw-bg-green-700 tw-text-white tw-rounded-md tw-font-semibold tw-transition-colors"
             >
               Yes, Let&apos;s Play!
             </button>
             <button
               onClick={() => setUserWantsToPlayGame(false)}
-              className="tw-px-6 tw-py-2 tw-bg-gray-500 hover:tw-bg-gray-600 tw-text-white tw-rounded-md tw-font-semibold tw-transition-colors"
+              className="tw-px-6 tw-py-2 tw-bg-gray-500 hover:tw-bg-gray-600 dark:tw-bg-gray-600 dark:hover:tw-bg-gray-700 tw-text-white tw-rounded-md tw-font-semibold tw-transition-colors"
             >
               No Thanks
             </button>
@@ -367,21 +351,11 @@ export const FileUpload = ({
 
       {/* Status Messages */}
       {uploadState.error && (
-        <div className="tw-mt-4 tw-p-4 tw-bg-red-50 tw-border tw-border-red-200 tw-rounded-md">
+        <div className="tw-mt-4 tw-p-4 tw-bg-red-50 dark:tw-bg-red-900/20 tw-border tw-border-red-200 dark:tw-border-red-800 tw-rounded-md">
           <div className="tw-flex">
-            <svg
-              className="tw-w-5 tw-h-5 tw-text-red-400"
-              fill="currentColor"
-              viewBox="0 0 20 20"
-            >
-              <path
-                fillRule="evenodd"
-                d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                clipRule="evenodd"
-              />
-            </svg>
+            <XCircleIconSolid className="tw-w-5 tw-h-5 tw-text-red-400" />
             <div className="tw-ml-3">
-              <p className="tw-text-sm tw-text-red-800">{uploadState.error}</p>
+              <p className="tw-text-sm tw-text-red-800 dark:tw-text-red-200">{uploadState.error}</p>
             </div>
           </div>
         </div>
@@ -389,22 +363,12 @@ export const FileUpload = ({
 
       {uploadState.success && uploadState.downloadUrl && (
         <div className="tw-mt-4 tw-space-y-4">
-          <div className="tw-p-4 tw-bg-green-50 tw-border tw-border-green-200 tw-rounded-md">
+          <div className="tw-p-4 tw-bg-green-50 dark:tw-bg-green-900/20 tw-border tw-border-green-200 dark:tw-border-green-800 tw-rounded-md">
             <div className="tw-flex tw-items-center tw-justify-between">
               <div className="tw-flex">
-                <svg
-                  className="tw-w-5 tw-h-5 tw-text-green-400"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                    clipRule="evenodd"
-                  />
-                </svg>
+                <CheckCircleIconSolid className="tw-w-5 tw-h-5 tw-text-green-400" />
                 <div className="tw-ml-3">
-                  <p className="tw-text-sm tw-text-green-800">
+                  <p className="tw-text-sm tw-text-green-800 dark:tw-text-green-200">
                     HTML processed successfully!
                   </p>
                 </div>
@@ -419,7 +383,7 @@ export const FileUpload = ({
                 </a>
                 <button
                   onClick={resetUpload}
-                  className="tw-bg-gray-500 hover:tw-bg-gray-600 tw-text-white tw-px-3 tw-py-1 tw-rounded tw-text-sm tw-transition-colors"
+                  className="tw-bg-gray-500 hover:tw-bg-gray-600 dark:tw-bg-gray-600 dark:hover:tw-bg-gray-700 tw-text-white tw-px-3 tw-py-1 tw-rounded tw-text-sm tw-transition-colors"
                 >
                   Upload Another
                 </button>
@@ -430,8 +394,8 @@ export const FileUpload = ({
           {/* URL Shortening Results */}
           {uploadState.originalUrls && uploadState.originalUrls.length > 0 && (
             <div className="tw-space-y-4">
-              <div className="tw-p-4 tw-bg-blue-50 tw-border tw-border-blue-200 tw-rounded-md">
-                <h3 className="tw-text-lg tw-font-medium tw-text-blue-900 tw-mb-3">
+              <div className="tw-p-4 tw-bg-blue-50 dark:tw-bg-blue-900/20 tw-border tw-border-blue-200 dark:tw-border-blue-800 tw-rounded-md">
+                <h3 className="tw-text-lg tw-font-medium tw-text-blue-900 dark:tw-text-blue-200 tw-mb-3">
                   URL Shortening Results
                 </h3>
                 <div className="tw-space-y-2">
@@ -457,15 +421,15 @@ export const FileUpload = ({
                 <div
                   className={`tw-p-4 tw-border tw-rounded-md ${
                     uploadState.spaceSavings.savedBytes > 0
-                      ? "tw-bg-purple-50 tw-border-purple-200"
-                      : "tw-bg-yellow-50 tw-border-yellow-200"
+                      ? "tw-bg-purple-50 dark:tw-bg-purple-900/20 tw-border-purple-200 dark:tw-border-purple-800"
+                      : "tw-bg-yellow-50 dark:tw-bg-yellow-900/20 tw-border-yellow-200 dark:tw-border-yellow-800"
                   }`}
                 >
                   <h3
                     className={`tw-text-lg tw-font-medium tw-mb-3 ${
                       uploadState.spaceSavings.savedBytes > 0
-                        ? "tw-text-purple-900"
-                        : "tw-text-yellow-900"
+                        ? "tw-text-purple-900 dark:tw-text-purple-200"
+                        : "tw-text-yellow-900 dark:tw-text-yellow-200"
                     }`}
                   >
                     {uploadState.spaceSavings.savedBytes > 0

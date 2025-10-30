@@ -416,16 +416,6 @@ export default function ContestFormAutomationPage() {
     setCurrentSubmission(0);
   };
 
-  // Copy form data to clipboard
-  const copyFormData = () => {
-    const dataToCopy = {
-      url: googleFormUrl,
-      formData: formData,
-      submissions: submissions,
-    };
-    navigator.clipboard.writeText(JSON.stringify(dataToCopy, null, 2));
-  };
-
   // Reset for new day
   const resetForNewDay = () => {
     if (persistenceEnabled) {
@@ -447,7 +437,7 @@ export default function ContestFormAutomationPage() {
   return (
     <div className="tw-container tw-mx-auto tw-px-4 tw-py-8 tw-max-w-4xl">
       <div className="tw-mb-8">
-        <h1 className="tw-text-3xl tw-font-bold tw-mb-2">
+        <h1 className="tw-text-3xl tw-font-bold tw-mb-2 tw-text-gray-900 dark:tw-text-gray-100">
           Contest Entry Automation - Week 7
         </h1>
         <p className="tw-text-gray-600">
@@ -1183,19 +1173,6 @@ export default function ContestFormAutomationPage() {
                 </li>
                 <li>Track success and error rates</li>
               </ul>
-            </div>
-
-            <div className="tw-bg-yellow-50 tw-border tw-border-yellow-200 tw-rounded-md tw-p-4">
-              <div className="tw-flex tw-items-start tw-gap-2">
-                <span className="tw-w-5 tw-h-5 tw-text-yellow-600">⚠️</span>
-                <div>
-                  <strong>Important:</strong> This tool is for legitimate
-                  contest entries only. Please ensure you have permission to
-                  submit multiple entries and comply with the contest&apos;s
-                  terms of service. Use responsibly and avoid overwhelming form
-                  servers.
-                </div>
-              </div>
             </div>
           </div>
         </div>

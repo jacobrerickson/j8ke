@@ -1,15 +1,10 @@
-import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { Suspense } from "react";
+import Head from "next/head";
 import { Providers } from "./providers";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
-
-export const metadata: Metadata = {
-  title: "Jacob Erickson",
-  description: "Jacob Erickson's Personal Website",
-};
 
 export default function RootLayout({
   children,
@@ -17,13 +12,17 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="tw-h-full">
+    <html lang="en" className="tw-h-full" suppressHydrationWarning>
+      <Head>
+        <title>Jacob Erickson</title>
+        <meta name="description" content="Jacob Erickson's Personal Website" />
+      </Head>
       <body className={`${inter.className} tw-h-full`}>
         <Providers>
-          <Suspense fallback={<div className="tw-flex tw-justify-center tw-items-center tw-min-h-screen">
+          <Suspense fallback={<div className="tw-flex tw-justify-center tw-items-center tw-min-h-screen tw-bg-white dark:tw-bg-gray-900">
             <div className="tw-flex tw-flex-col tw-items-center tw-gap-4">
-              <div className="tw-animate-spin tw-h-8 tw-w-8 tw-border-4 tw-border-blue-600 tw-border-t-transparent tw-rounded-full"></div>
-              <p className="tw-text-gray-600">Loading...</p>
+              <div className="tw-animate-spin tw-h-8 tw-w-8 tw-border-4 tw-border-blue-600 dark:tw-border-blue-400 tw-border-t-transparent tw-rounded-full"></div>
+              <p className="tw-text-gray-600 dark:tw-text-gray-300">Loading...</p>
             </div>
           </div>}>
             {children}
