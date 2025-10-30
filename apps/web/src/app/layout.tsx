@@ -1,10 +1,15 @@
 import { Inter } from "next/font/google";
 import { Suspense } from "react";
-import Head from "next/head";
 import { Providers } from "./providers";
 import "./globals.css";
+import type { Metadata } from "next";
 
 const inter = Inter({ subsets: ["latin"] });
+
+export const metadata: Metadata = {
+  title: "Jacob Erickson",
+  description: "Jacob Erickson's Personal Website",
+};
 
 export default function RootLayout({
   children,
@@ -13,10 +18,6 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="tw-h-full" suppressHydrationWarning>
-      <Head>
-        <title>Jacob Erickson</title>
-        <meta name="description" content="Jacob Erickson's Personal Website" />
-      </Head>
       <body className={`${inter.className} tw-h-full`}>
         <Providers>
           <Suspense fallback={<div className="tw-flex tw-justify-center tw-items-center tw-min-h-screen tw-bg-white dark:tw-bg-gray-900">
