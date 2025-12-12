@@ -126,11 +126,6 @@ const sendQREmail = async (
   const compiledHTML = ReactDOMServer.renderToStaticMarkup(
     <QREmail recipientEmail={recipientEmail} message={message} />,
   );
-  await addEmailLog(
-    process.env.MAIL_TRAP_FROM_EMAIL ?? "jacobroberterickson@gmail.com",
-    recipientEmail,
-    "QR Code Email Sent",
-  );
 
   // Prepare attachments for nodemailer
   const attachments: {
