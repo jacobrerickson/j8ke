@@ -56,7 +56,11 @@
 
 /* Smooth theme transitions */
 * {
-  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease,
+    border-color 0.3s ease,
+    box-shadow 0.3s ease;
 }
 
 /* Disable transitions for elements that shouldn't animate */
@@ -75,4 +79,30 @@ body {
   /* Remove background-color and color to let Tailwind classes take precedence */
   /* background-color: rgb(var(--background-rgb)); */
   /* color: rgb(var(--foreground-rgb)); */
+}
+
+/* Falling snowflake animation */
+@keyframes fall {
+  0% {
+    transform: translateY(-100vh) rotate(0deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100vh) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+.snowflake {
+  position: absolute;
+  animation: fall linear infinite;
+  pointer-events: none;
+  user-select: none;
+  filter: brightness(0) invert(1);
 }

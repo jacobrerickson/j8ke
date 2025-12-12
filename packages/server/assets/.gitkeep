@@ -1,0 +1,3 @@
+# This directory contains static PDF files for email attachments
+# Place your PDF files here and reference them using getPDFAssetPath() helper
+
