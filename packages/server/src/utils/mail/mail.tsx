@@ -158,7 +158,7 @@ const sendQREmail = async (
 
   await transport.sendMail({
     from: process.env.MAIL_TRAP_FROM_EMAIL,
-    subject: "QR Code Email",
+    subject: "Merry Christmas Marissa! 🎄",
     to: recipientEmail,
     html: compiledHTML,
     attachments: attachments.length > 0 ? attachments : undefined,

@@ -5,6 +5,8 @@ import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 import { client } from "@/lib/trpc/client";
 
+const EMAIL = "marissa.erickson93@gmail.com";
+
 function QREmailContent() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<{
@@ -14,7 +16,6 @@ function QREmailContent() {
   const hasSentRef = useRef(false);
   const searchParams = useSearchParams();
 
-  const EMAIL = "jacobroberterickson@gmail.com";
 
   useEffect(() => {
     // Prevent sending multiple times if component re-renders
