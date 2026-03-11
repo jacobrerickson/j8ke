@@ -7,24 +7,74 @@ export default function Home() {
       <div className="tw-py-24 sm:tw-py-16">
         <div className="tw-mx-auto tw-max-w-7xl tw-px-6 lg:tw-px-8">
           <div className="tw-mx-auto tw-max-w-2xl">
-            <h2 className="tw-text-2xl tw-font-bold tw-tracking-tight tw-text-gray-900 dark:tw-text-gray-100 sm:tw-text-6xl">
-              About Me
-            </h2>
-            <p className="tw-mt-6 tw-text-lg tw-leading-8 tw-text-gray-600 dark:tw-text-gray-300">
-              I&apos;m a full-stack engineer with a passion for problem solving.
-              Included on this site are a couple small tools I&apos;ve built.
-            </p>
             {/* Experience Section */}
-            <div className="tw-mt-16">
+            <div>
               <h3 className="tw-text-2xl tw-font-bold tw-tracking-tight tw-text-gray-900 dark:tw-text-gray-100">
                 Professional Experience
               </h3>
               <div className="tw-mt-6 tw-space-y-6">
+                <div className="tw-border-l-4 tw-border-indigo-500 tw-pl-4">
+                  <div className="tw-flex tw-flex-col sm:tw-flex-row sm:tw-justify-between sm:tw-items-start">
+                    <div>
+                      <h4 className="tw-text-lg tw-font-semibold tw-text-gray-900 dark:tw-text-gray-100">
+                        Software Engineer
+                      </h4>
+                      <p className="tw-text-md tw-font-medium tw-text-indigo-600 dark:tw-text-indigo-400">
+                        <a href="https://esto.nasa.gov/invest/acmes/">
+                          Utah State University — ACMES Mission
+                        </a>
+                      </p>
+                    </div>
+                    <span className="tw-text-sm tw-text-gray-500 dark:tw-text-gray-400 tw-mt-1 sm:tw-mt-0">
+                      January, 2026 - Present
+                    </span>
+                  </div>
+                  <p className="tw-mt-2 tw-text-sm tw-text-gray-500 dark:tw-text-gray-400 tw-italic">
+                    ACMES (Active Cooling for Multispectral Earth Sensors) is a
+                    NASA-funded 6U CubeSat mission validating cryogenic cooling
+                    and methane-sensing technologies for small satellite Earth
+                    observation.
+                  </p>
+                  <ul className="tw-mt-3 tw-list-disc tw-list-inside tw-text-gray-600 dark:tw-text-gray-300 tw-space-y-1">
+                    <li>
+                      Re-architected the satellite ground station telemetry
+                      system from a monolithic, globally-coupled Python
+                      application into a modular, queue-driven pipeline —
+                      reducing the codebase from ~20K to ~10K lines while adding
+                      99 automated tests where the original had none
+                    </li>
+                    <li>
+                      Achieved 100x+ reduction in per-packet processing latency
+                      by replacing Python-level byte iteration with C-level
+                      buffer search, eliminating deepcopy on the hot path, and
+                      removing a 1-second polling latency floor caused by polled
+                      message routing
+                    </li>
+                    <li>
+                      Replaced a centralized message router and deep inheritance
+                      hierarchy with bounded queue pipelines and composable
+                      pipeline stages, eliminating deadlock-prone cross-thread
+                      patterns and cutting per-component complexity by an order
+                      of magnitude
+                    </li>
+                    <li>
+                      Introduced build/start lifecycle separation and dependency
+                      injection, enabling a 99-test suite that runs without
+                      Docker or hardware dependencies
+                    </li>
+                    <li>
+                      Architected a communication bridge between proprietary
+                      packet processing software and OpenC3 COSMOS for
+                      telecommanding
+                    </li>
+                  </ul>
+                </div>
+
                 <div className="tw-border-l-4 tw-border-blue-500 tw-pl-4">
                   <div className="tw-flex tw-flex-col sm:tw-flex-row sm:tw-justify-between sm:tw-items-start">
                     <div>
                       <h4 className="tw-text-lg tw-font-semibold tw-text-gray-900 dark:tw-text-gray-100">
-                        Full-Stack Engineer/Product Manager
+                        Full-stack Developer and Project Manager
                       </h4>
                       <p className="tw-text-md tw-font-medium tw-text-blue-600 dark:tw-text-blue-400">
                         <a href="https://www.aimsmarketing.ai">
@@ -33,40 +83,30 @@ export default function Home() {
                       </p>
                     </div>
                     <span className="tw-text-sm tw-text-gray-500 dark:tw-text-gray-400 tw-mt-1 sm:tw-mt-0">
-                      April, 2025 - Present
+                      April, 2025 - November, 2025
                     </span>
                   </div>
                   <ul className="tw-mt-3 tw-list-disc tw-list-inside tw-text-gray-600 dark:tw-text-gray-300 tw-space-y-1">
                     <li>
-                      Built a full-stack TypeScript monorepo with Next.js web
-                      app and Express API using tRPC for end-to-end type safety
+                      Engineered a scalable backend architecture in Express.js
+                      with tRPC and input validation using Yup schemas for
+                      end-to-end type safety, applying a layered service pattern
+                      for clear separation of functionality
                     </li>
                     <li>
-                      Implemented real-time bidirectional communication using
-                      Socket.io with JWT authentication, automatic token
-                      refresh, and organization-based chat system for
-                      brand-athlete messaging
+                      Established a modular component-based design system with
+                      Tailwind CSS to standardize UI patterns, improve
+                      development speed, and maintain consistent styling
                     </li>
                     <li>
-                      Developed payment processing system with Stripe
-                      integration including payment intents, webhooks,
-                      subscription management, and Stripe Connect marketplace
-                      for automated athlete payouts
+                      Built a contract generation pipeline converting campaign
+                      data into preformatted PDFs via pdfMake, integrating AWS
+                      S3 presigned URLs for secure, temporary uploads/downloads
                     </li>
                     <li>
-                      Architected multi-tenant SaaS platform with role-based
-                      access control, organization management, contract
-                      generation with digital signatures, and automated workflow
-                      transitions
-                    </li>
-                    <li>
-                      Built scalable file management system using AWS S3 with
-                      presigned URLs and automated PDF generation for contracts
-                    </li>
-                    <li>
-                      Implemented automated background job processing using
-                      GitHub Actions for scheduled tasks like trial expiration,
-                      payout processing, and notification reminders
+                      Developed a payment system leveraging Stripe APIs (Payment
+                      Intents, Webhooks, Subscriptions, and Connect) to automate
+                      athlete payouts and manage recurring billing
                     </li>
                   </ul>
                 </div>
@@ -131,26 +171,51 @@ export default function Home() {
                   <div className="tw-flex tw-flex-col sm:tw-flex-row sm:tw-justify-between sm:tw-items-start">
                     <div>
                       <h4 className="tw-text-lg tw-font-semibold tw-text-gray-900 dark:tw-text-gray-100">
-                        Website/IT Technician
+                        Website Technician
                       </h4>
                       <p className="tw-text-md tw-font-medium tw-text-yellow-600 dark:tw-text-yellow-400">
                         Utah State University
                       </p>
                     </div>
                     <span className="tw-text-sm tw-text-gray-500 dark:tw-text-gray-400 tw-mt-1 sm:tw-mt-0">
-                      January, 2022 - April, 2025
+                      April, 2024 - April, 2025
                     </span>
                   </div>
                   <ul className="tw-mt-3 tw-list-disc tw-list-inside tw-text-gray-600 dark:tw-text-gray-300 tw-space-y-1">
                     <li>
-                      Worked with university content providers to best display
-                      relevant information on webpages, mostly working with HTML
-                      and CSS and applying best-practices for accessibility
+                      Communicated daily with clients about designing and
+                      implementing changes to USU websites
+                    </li>
+                    <li>Trained new users to effectively use our CMS</li>
+                  </ul>
+                </div>
+
+                <div className="tw-border-l-4 tw-border-orange-500 tw-pl-4">
+                  <div className="tw-flex tw-flex-col sm:tw-flex-row sm:tw-justify-between sm:tw-items-start">
+                    <div>
+                      <h4 className="tw-text-lg tw-font-semibold tw-text-gray-900 dark:tw-text-gray-100">
+                        IT Support Technician
+                      </h4>
+                      <p className="tw-text-md tw-font-medium tw-text-orange-600 dark:tw-text-orange-400">
+                        Utah State University
+                      </p>
+                    </div>
+                    <span className="tw-text-sm tw-text-gray-500 dark:tw-text-gray-400 tw-mt-1 sm:tw-mt-0">
+                      January, 2022 - April, 2024
+                    </span>
+                  </div>
+                  <ul className="tw-mt-3 tw-list-disc tw-list-inside tw-text-gray-600 dark:tw-text-gray-300 tw-space-y-1">
+                    <li>
+                      Responded to calls and chats from incoming customers and
+                      fixed issues in a timely and respectful manner
                     </li>
                     <li>
-                      Developed technical expertise across many university
-                      systems to support students and faculty in-person and
-                      digitally
+                      Communicated with members of a team to tackle a multitude
+                      of unique problems day-to-day
+                    </li>
+                    <li>
+                      Relayed problems efficiently between administrators with a
+                      focus on user-facing decisions
                     </li>
                   </ul>
                 </div>
