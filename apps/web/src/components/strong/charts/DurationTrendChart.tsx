@@ -9,7 +9,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
-import { useChartTheme, CHART_COLORS } from "./chartTheme";
+import { useChartTheme, CHART_COLORS, TOOLTIP_WRAPPER_STYLE } from "./chartTheme";
 
 interface Props {
   data: { date: string; durationMinutes: number; workoutName: string }[];
@@ -62,11 +62,8 @@ export function DurationTrendChart({ data }: Props) {
             }}
           />
           <Tooltip
-            contentStyle={{
-              backgroundColor: theme.tooltipBg,
-              borderColor: theme.tooltipBorder,
-              color: theme.tooltipText,
-            }}
+            wrapperStyle={TOOLTIP_WRAPPER_STYLE}
+            contentStyle={theme.tooltipStyle}
             formatter={(value, _name, entry) => [
               `${value} min`,
               (entry as { payload: { workoutName: string } }).payload.workoutName,

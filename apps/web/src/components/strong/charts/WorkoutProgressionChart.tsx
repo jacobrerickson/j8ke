@@ -11,7 +11,7 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
-import { useChartTheme, CHART_COLORS, formatVolume } from "./chartTheme";
+import { useChartTheme, CHART_COLORS, formatVolume, TOOLTIP_WRAPPER_STYLE } from "./chartTheme";
 
 interface Props {
   data: { date: string; workoutName: string; totalVolume: number }[];
@@ -62,11 +62,8 @@ export function WorkoutProgressionChart({ data }: Props) {
             tickFormatter={formatVolume}
           />
           <Tooltip
-            contentStyle={{
-              backgroundColor: theme.tooltipBg,
-              borderColor: theme.tooltipBorder,
-              color: theme.tooltipText,
-            }}
+            wrapperStyle={TOOLTIP_WRAPPER_STYLE}
+            contentStyle={theme.tooltipStyle}
             formatter={(value) => [
               `${formatVolume(Number(value))} lbs`,
               "Volume",

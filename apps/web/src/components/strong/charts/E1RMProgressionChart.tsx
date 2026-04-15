@@ -10,7 +10,7 @@ import {
   ResponsiveContainer,
   ReferenceLine,
 } from "recharts";
-import { useChartTheme, CHART_COLORS } from "./chartTheme";
+import { useChartTheme, CHART_COLORS, TOOLTIP_WRAPPER_STYLE } from "./chartTheme";
 
 interface Props {
   data: { date: string; e1rm: number; weight: number; reps: number }[];
@@ -67,11 +67,8 @@ export function E1RMProgressionChart({ data, exerciseName }: Props) {
             strokeOpacity={0.6}
           />
           <Tooltip
-            contentStyle={{
-              backgroundColor: theme.tooltipBg,
-              borderColor: theme.tooltipBorder,
-              color: theme.tooltipText,
-            }}
+            wrapperStyle={TOOLTIP_WRAPPER_STYLE}
+            contentStyle={theme.tooltipStyle}
             formatter={(_value, _name, entry) => {
               const p = (entry as { payload: { e1rm: number; weight: number; reps: number } }).payload;
               return [`${p.e1rm} lbs (${p.weight}×${p.reps})`, "Est. 1RM"];

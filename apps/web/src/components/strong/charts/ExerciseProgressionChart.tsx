@@ -10,7 +10,7 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
-import { useChartTheme, CHART_COLORS } from "./chartTheme";
+import { useChartTheme, CHART_COLORS, TOOLTIP_WRAPPER_STYLE } from "./chartTheme";
 
 interface Props {
   data: { date: string; maxWeight: number; totalVolume: number; maxReps: number }[];
@@ -62,11 +62,8 @@ export function ExerciseProgressionChart({ data, exerciseName }: Props) {
             }}
           />
           <Tooltip
-            contentStyle={{
-              backgroundColor: theme.tooltipBg,
-              borderColor: theme.tooltipBorder,
-              color: theme.tooltipText,
-            }}
+            wrapperStyle={TOOLTIP_WRAPPER_STYLE}
+            contentStyle={theme.tooltipStyle}
             labelFormatter={(label) =>
               new Date(label).toLocaleDateString(undefined, {
                 weekday: "short",

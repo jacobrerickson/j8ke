@@ -14,7 +14,7 @@ import {
   Cell,
 } from "recharts";
 import type { PieLabelRenderProps } from "recharts";
-import { useChartTheme, CHART_COLORS, formatVolume } from "./chartTheme";
+import { useChartTheme, CHART_COLORS, formatVolume, TOOLTIP_WRAPPER_STYLE } from "./chartTheme";
 
 interface Props {
   data: { exerciseName: string; totalVolume: number }[];
@@ -28,7 +28,7 @@ export function VolumeDistributionChart({ data }: Props) {
   if (!data.length) return null;
 
   return (
-    <div className="tw-bg-white dark:tw-bg-gray-800 tw-rounded-lg tw-shadow tw-p-6">
+    <div className="tw-bg-white dark:tw-bg-gray-800 tw-rounded-lg tw-shadow tw-p-4 sm:tw-p-6 tw-overflow-hidden">
       <div className="tw-flex tw-items-center tw-justify-between tw-mb-4">
         <h3 className="tw-text-lg tw-font-semibold tw-text-gray-900 dark:tw-text-gray-100">
           Volume by Exercise
@@ -51,27 +51,25 @@ export function VolumeDistributionChart({ data }: Props) {
       </div>
       <ResponsiveContainer width="100%" height={350}>
         {view === "bar" ? (
-          <BarChart data={top10} layout="vertical" margin={{ left: 120 }}>
+          <BarChart data={top10} layout="vertical" margin={{ left: 10, right: 10 }}>
             <CartesianGrid strokeDasharray="3 3" stroke={theme.grid} />
             <XAxis
               type="number"
               tick={{ fill: theme.axis, fontSize: 12 }}
-              tickFormatter={(v) =>
-                formatVolume(v)
-              }
+              tickFormatter={(v) => formatVolume(v)}
             />
             <YAxis
               type="category"
               dataKey="exerciseName"
               tick={{ fill: theme.axis, fontSize: 11 }}
-              width={115}
+              width={100}
+              tickFormatter={(v: string) =>
+                v.length > 14 ? v.slice(0, 13) + "…" : v
+              }
             />
             <Tooltip
-              contentStyle={{
-                backgroundColor: theme.tooltipBg,
-                borderColor: theme.tooltipBorder,
-                color: theme.tooltipText,
-              }}
+              wrapperStyle={TOOLTIP_WRAPPER_STYLE}
+              contentStyle={theme.tooltipStyle}
               formatter={(value) => [
                 `${formatVolume(Number(value))} lbs`,
                 "Volume",
@@ -110,11 +108,8 @@ export function VolumeDistributionChart({ data }: Props) {
               ))}
             </Pie>
             <Tooltip
-              contentStyle={{
-                backgroundColor: theme.tooltipBg,
-                borderColor: theme.tooltipBorder,
-                color: theme.tooltipText,
-              }}
+              wrapperStyle={TOOLTIP_WRAPPER_STYLE}
+              contentStyle={theme.tooltipStyle}
               formatter={(value) => [
                 `${formatVolume(Number(value))} lbs`,
                 "Volume",

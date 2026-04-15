@@ -10,7 +10,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
-import { useChartTheme, CHART_COLORS } from "./chartTheme";
+import { useChartTheme, CHART_COLORS, TOOLTIP_WRAPPER_STYLE } from "./chartTheme";
 import type { WorkoutSession } from "@/lib/strong/types";
 import { getWorkoutFrequency } from "@/lib/strong/processWorkoutData";
 
@@ -62,11 +62,8 @@ export function WorkoutFrequencyChart({ sessions }: Props) {
             allowDecimals={false}
           />
           <Tooltip
-            contentStyle={{
-              backgroundColor: theme.tooltipBg,
-              borderColor: theme.tooltipBorder,
-              color: theme.tooltipText,
-            }}
+            wrapperStyle={TOOLTIP_WRAPPER_STYLE}
+            contentStyle={theme.tooltipStyle}
             formatter={(value) => [`${value} workouts`, "Count"]}
           />
           <Bar dataKey="count" fill={CHART_COLORS[0]} radius={[4, 4, 0, 0]} />
