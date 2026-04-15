@@ -6,9 +6,11 @@ import { groupIntoSessions } from "@/lib/strong/processWorkoutData";
 import {
   getWorkoutProgression,
   getExerciseProgression,
+  getE1RMProgression,
   getVolumeDistribution,
   getPersonalRecords,
   getDurationTrends,
+  getOverloadSummaries,
 } from "@/lib/strong/processWorkoutData";
 import { formatVolume } from "./charts/chartTheme";
 import { FilterBar } from "./filters/FilterBar";
@@ -18,6 +20,8 @@ import { WorkoutFrequencyChart } from "./charts/WorkoutFrequencyChart";
 import { VolumeDistributionChart } from "./charts/VolumeDistributionChart";
 import { DurationTrendChart } from "./charts/DurationTrendChart";
 import { PersonalRecordsTable } from "./charts/PersonalRecordsTable";
+import { E1RMProgressionChart } from "./charts/E1RMProgressionChart";
+import { OverloadTracker } from "./charts/OverloadTracker";
 
 type Tab = "overview" | "exercises" | "records";
 
@@ -122,6 +126,17 @@ export function StrongDashboard({ rawRows, onClear, onNewUpload }: Props) {
         : [],
     [filteredSessions, selectedExercise],
   );
+  const e1rmData = useMemo(
+    () =>
+      selectedExercise
+        ? getE1RMProgression(filteredSessions, selectedExercise)
+        : [],
+    [filteredSessions, selectedExercise],
+  );
+  const overloadSummaries = useMemo(
+    () => getOverloadSummaries(filteredSessions),
+    [filteredSessions],
+  );
 
   const tabs: { key: Tab; label: string }[] = [
     { key: "overview", label: "Overview" },
@@ -222,11 +237,14 @@ export function StrongDashboard({ rawRows, onClear, onNewUpload }: Props) {
 
       {/* Tab content */}
       {activeTab === "overview" && (
-        <div className="tw-grid tw-grid-cols-1 lg:tw-grid-cols-2 tw-gap-6">
-          <WorkoutProgressionChart data={progressionData} />
-          <WorkoutFrequencyChart sessions={filteredSessions} />
-          <VolumeDistributionChart data={volumeDistData} />
-          <DurationTrendChart data={durationData} />
+        <div className="tw-space-y-6">
+          <div className="tw-grid tw-grid-cols-1 lg:tw-grid-cols-2 tw-gap-6">
+            <WorkoutProgressionChart data={progressionData} />
+            <WorkoutFrequencyChart sessions={filteredSessions} />
+            <VolumeDistributionChart data={volumeDistData} />
+            <DurationTrendChart data={durationData} />
+          </div>
+          <OverloadTracker summaries={overloadSummaries} />
         </div>
       )}
 
@@ -247,10 +265,16 @@ export function StrongDashboard({ rawRows, onClear, onNewUpload }: Props) {
             </select>
           </div>
           {selectedExercise ? (
-            <ExerciseProgressionChart
-              data={exerciseData}
-              exerciseName={selectedExercise}
-            />
+            <div className="tw-space-y-6">
+              <E1RMProgressionChart
+                data={e1rmData}
+                exerciseName={selectedExercise}
+              />
+              <ExerciseProgressionChart
+                data={exerciseData}
+                exerciseName={selectedExercise}
+              />
+            </div>
           ) : (
             <p className="tw-text-gray-500 dark:tw-text-gray-400 tw-text-center tw-py-12">
               Select an exercise above to view its progression over time.

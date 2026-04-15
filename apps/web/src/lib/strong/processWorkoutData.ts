@@ -196,6 +196,127 @@ export function getPersonalRecords(
     .sort((a, b) => b.maxSessionVolume.value - a.maxSessionVolume.value);
 }
 
+/** Epley formula: weight × (1 + reps / 30). Only meaningful for reps <= 30 with weight > 0. */
+export function estimateE1RM(weight: number, reps: number): number {
+  if (weight <= 0 || reps <= 0) return 0;
+  if (reps === 1) return weight;
+  return Math.round(weight * (1 + reps / 30));
+}
+
+export function getE1RMProgression(
+  sessions: WorkoutSession[],
+  exerciseName: string,
+): { date: string; e1rm: number; weight: number; reps: number }[] {
+  const result: { date: string; e1rm: number; weight: number; reps: number }[] = [];
+
+  for (const session of sessions) {
+    for (const ex of session.exercises) {
+      if (ex.exerciseName !== exerciseName) continue;
+
+      let bestE1RM = 0;
+      let bestWeight = 0;
+      let bestReps = 0;
+
+      for (const set of ex.sets) {
+        const e1rm = estimateE1RM(set.weight, set.reps);
+        if (e1rm > bestE1RM) {
+          bestE1RM = e1rm;
+          bestWeight = set.weight;
+          bestReps = set.reps;
+        }
+      }
+
+      if (bestE1RM > 0) {
+        result.push({
+          date: toDateKey(session.date),
+          e1rm: bestE1RM,
+          weight: bestWeight,
+          reps: bestReps,
+        });
+      }
+    }
+  }
+
+  return result;
+}
+
+export type OverloadStatus = "progressing" | "maintaining" | "regressing";
+
+export interface ExerciseOverloadSummary {
+  exerciseName: string;
+  status: OverloadStatus;
+  recentE1RM: number;
+  previousE1RM: number;
+  changePercent: number;
+  sessionCount: number;
+}
+
+/**
+ * Compares the average E1RM of the last `recentCount` sessions to the prior
+ * `recentCount` sessions for each exercise. Requires at least 2 sessions.
+ */
+export function getOverloadSummaries(
+  sessions: WorkoutSession[],
+  recentCount = 3,
+): ExerciseOverloadSummary[] {
+  const exerciseSessionsMap = new Map<
+    string,
+    { date: Date; bestE1RM: number }[]
+  >();
+
+  for (const session of sessions) {
+    for (const ex of session.exercises) {
+      let bestE1RM = 0;
+      for (const set of ex.sets) {
+        const e1rm = estimateE1RM(set.weight, set.reps);
+        if (e1rm > bestE1RM) bestE1RM = e1rm;
+      }
+      if (bestE1RM <= 0) continue;
+
+      const list = exerciseSessionsMap.get(ex.exerciseName) ?? [];
+      list.push({ date: session.date, bestE1RM });
+      exerciseSessionsMap.set(ex.exerciseName, list);
+    }
+  }
+
+  const summaries: ExerciseOverloadSummary[] = [];
+
+  for (const [exerciseName, entries] of exerciseSessionsMap) {
+    if (entries.length < 2) continue;
+
+    entries.sort((a, b) => a.date.getTime() - b.date.getTime());
+
+    const recent = entries.slice(-recentCount);
+    const prior = entries.slice(
+      Math.max(0, entries.length - recentCount * 2),
+      entries.length - recentCount,
+    );
+
+    if (!prior.length) continue;
+
+    const avgRecent = recent.reduce((s, e) => s + e.bestE1RM, 0) / recent.length;
+    const avgPrior = prior.reduce((s, e) => s + e.bestE1RM, 0) / prior.length;
+    const changePercent =
+      avgPrior > 0 ? ((avgRecent - avgPrior) / avgPrior) * 100 : 0;
+
+    let status: OverloadStatus;
+    if (changePercent > 1.5) status = "progressing";
+    else if (changePercent < -1.5) status = "regressing";
+    else status = "maintaining";
+
+    summaries.push({
+      exerciseName,
+      status,
+      recentE1RM: Math.round(avgRecent),
+      previousE1RM: Math.round(avgPrior),
+      changePercent: Math.round(changePercent * 10) / 10,
+      sessionCount: entries.length,
+    });
+  }
+
+  return summaries.sort((a, b) => b.changePercent - a.changePercent);
+}
+
 export function getDurationTrends(
   sessions: WorkoutSession[],
 ): { date: string; durationMinutes: number; workoutName: string }[] {
