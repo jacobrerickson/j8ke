@@ -67,7 +67,7 @@ export function WorkoutFrequencyChart({ sessions }: Props) {
               borderColor: theme.tooltipBorder,
               color: theme.tooltipText,
             }}
-            formatter={(value: number) => [`${value} workouts`, "Count"]}
+            formatter={(value) => [`${value} workouts`, "Count"]}
           />
           <Bar dataKey="count" fill={CHART_COLORS[0]} radius={[4, 4, 0, 0]} />
         </BarChart>

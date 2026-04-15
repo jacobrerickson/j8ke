@@ -13,6 +13,7 @@ import {
   Pie,
   Cell,
 } from "recharts";
+import type { PieLabelRenderProps } from "recharts";
 import { useChartTheme, CHART_COLORS, formatVolume } from "./chartTheme";
 
 interface Props {
@@ -71,8 +72,8 @@ export function VolumeDistributionChart({ data }: Props) {
                 borderColor: theme.tooltipBorder,
                 color: theme.tooltipText,
               }}
-              formatter={(value: number) => [
-                `${formatVolume(value)} lbs`,
+              formatter={(value) => [
+                `${formatVolume(Number(value))} lbs`,
                 "Volume",
               ]}
             />
@@ -94,9 +95,11 @@ export function VolumeDistributionChart({ data }: Props) {
               cx="50%"
               cy="50%"
               outerRadius={120}
-              label={({ exerciseName, percent }) =>
-                `${exerciseName.length > 15 ? exerciseName.slice(0, 15) + "…" : exerciseName} ${(percent * 100).toFixed(0)}%`
-              }
+              label={(props: PieLabelRenderProps) => {
+                const name = String((props.payload as Record<string, unknown>)?.exerciseName ?? "");
+                const pct = Number(props.percent ?? 0);
+                return `${name.length > 15 ? name.slice(0, 15) + "…" : name} ${(pct * 100).toFixed(0)}%`;
+              }}
               labelLine={{ stroke: theme.axis }}
             >
               {top10.map((_, i) => (
@@ -112,8 +115,8 @@ export function VolumeDistributionChart({ data }: Props) {
                 borderColor: theme.tooltipBorder,
                 color: theme.tooltipText,
               }}
-              formatter={(value: number) => [
-                `${formatVolume(value)} lbs`,
+              formatter={(value) => [
+                `${formatVolume(Number(value))} lbs`,
                 "Volume",
               ]}
             />

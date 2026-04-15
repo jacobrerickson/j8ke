@@ -67,9 +67,9 @@ export function DurationTrendChart({ data }: Props) {
               borderColor: theme.tooltipBorder,
               color: theme.tooltipText,
             }}
-            formatter={(value: number, _: string, entry: { payload: { workoutName: string } }) => [
+            formatter={(value, _name, entry) => [
               `${value} min`,
-              entry.payload.workoutName,
+              (entry as { payload: { workoutName: string } }).payload.workoutName,
             ]}
             labelFormatter={(label) =>
               new Date(label).toLocaleDateString(undefined, {

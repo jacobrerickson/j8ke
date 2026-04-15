@@ -72,10 +72,10 @@ export function E1RMProgressionChart({ data, exerciseName }: Props) {
               borderColor: theme.tooltipBorder,
               color: theme.tooltipText,
             }}
-            formatter={(_: number, __: string, entry: { payload: { e1rm: number; weight: number; reps: number } }) => [
-              `${entry.payload.e1rm} lbs (${entry.payload.weight}×${entry.payload.reps})`,
-              "Est. 1RM",
-            ]}
+            formatter={(_value, _name, entry) => {
+              const p = (entry as { payload: { e1rm: number; weight: number; reps: number } }).payload;
+              return [`${p.e1rm} lbs (${p.weight}×${p.reps})`, "Est. 1RM"];
+            }}
             labelFormatter={(label) =>
               new Date(label).toLocaleDateString(undefined, {
                 weekday: "short",

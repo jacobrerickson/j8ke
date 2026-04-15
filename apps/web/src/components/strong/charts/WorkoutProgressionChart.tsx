@@ -67,8 +67,8 @@ export function WorkoutProgressionChart({ data }: Props) {
               borderColor: theme.tooltipBorder,
               color: theme.tooltipText,
             }}
-            formatter={(value: number) => [
-              `${formatVolume(value)} lbs`,
+            formatter={(value) => [
+              `${formatVolume(Number(value))} lbs`,
               "Volume",
             ]}
             labelFormatter={(label) =>
