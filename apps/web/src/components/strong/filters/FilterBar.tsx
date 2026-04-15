@@ -30,8 +30,8 @@ export function FilterBar({
   );
 
   return (
-    <div className="tw-flex tw-flex-col sm:tw-flex-row tw-gap-4 tw-mb-6">
-      <div className="tw-flex tw-gap-2 tw-items-center">
+    <div className="tw-flex tw-flex-col tw-gap-3 sm:tw-flex-row sm:tw-flex-wrap sm:tw-gap-4 tw-mb-6">
+      <div className="tw-grid tw-grid-cols-[auto_1fr_auto_1fr] tw-gap-2 tw-items-center sm:tw-flex">
         <label className="tw-text-sm tw-font-medium tw-text-gray-700 dark:tw-text-gray-300 tw-whitespace-nowrap">
           From
         </label>
@@ -44,7 +44,7 @@ export function FilterBar({
               dateRange: { ...filters.dateRange, start: e.target.value },
             })
           }
-          className="tw-rounded-md tw-border tw-border-gray-300 dark:tw-border-gray-600 tw-bg-white dark:tw-bg-gray-700 tw-text-gray-900 dark:tw-text-gray-100 tw-px-3 tw-py-1.5 tw-text-sm"
+          className="tw-rounded-md tw-border tw-border-gray-300 dark:tw-border-gray-600 tw-bg-white dark:tw-bg-gray-700 tw-text-gray-900 dark:tw-text-gray-100 tw-px-3 tw-py-1.5 tw-text-sm tw-min-w-0"
         />
         <label className="tw-text-sm tw-font-medium tw-text-gray-700 dark:tw-text-gray-300">
           to
@@ -58,7 +58,7 @@ export function FilterBar({
               dateRange: { ...filters.dateRange, end: e.target.value },
             })
           }
-          className="tw-rounded-md tw-border tw-border-gray-300 dark:tw-border-gray-600 tw-bg-white dark:tw-bg-gray-700 tw-text-gray-900 dark:tw-text-gray-100 tw-px-3 tw-py-1.5 tw-text-sm"
+          className="tw-rounded-md tw-border tw-border-gray-300 dark:tw-border-gray-600 tw-bg-white dark:tw-bg-gray-700 tw-text-gray-900 dark:tw-text-gray-100 tw-px-3 tw-py-1.5 tw-text-sm tw-min-w-0"
         />
       </div>
 
@@ -70,7 +70,7 @@ export function FilterBar({
             workoutNames: e.target.value ? [e.target.value] : [],
           })
         }
-        className="tw-rounded-md tw-border tw-border-gray-300 dark:tw-border-gray-600 tw-bg-white dark:tw-bg-gray-700 tw-text-gray-900 dark:tw-text-gray-100 tw-px-3 tw-py-1.5 tw-text-sm"
+        className="tw-w-full sm:tw-w-auto tw-rounded-md tw-border tw-border-gray-300 dark:tw-border-gray-600 tw-bg-white dark:tw-bg-gray-700 tw-text-gray-900 dark:tw-text-gray-100 tw-px-3 tw-py-1.5 tw-text-sm"
       >
         <option value="">All Workouts</option>
         {workoutNames.map((name) => (
@@ -88,7 +88,7 @@ export function FilterBar({
             exerciseNames: e.target.value ? [e.target.value] : [],
           })
         }
-        className="tw-rounded-md tw-border tw-border-gray-300 dark:tw-border-gray-600 tw-bg-white dark:tw-bg-gray-700 tw-text-gray-900 dark:tw-text-gray-100 tw-px-3 tw-py-1.5 tw-text-sm"
+        className="tw-w-full sm:tw-w-auto tw-rounded-md tw-border tw-border-gray-300 dark:tw-border-gray-600 tw-bg-white dark:tw-bg-gray-700 tw-text-gray-900 dark:tw-text-gray-100 tw-px-3 tw-py-1.5 tw-text-sm"
       >
         <option value="">All Exercises</option>
         {exerciseNames.map((name) => (

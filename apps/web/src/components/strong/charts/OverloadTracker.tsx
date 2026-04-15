@@ -38,7 +38,7 @@ export function OverloadTracker({ summaries }: Props) {
   const regressing = summaries.filter((s) => s.status === "regressing");
 
   return (
-    <div className="tw-bg-white dark:tw-bg-gray-800 tw-rounded-lg tw-shadow tw-p-6">
+    <div className="tw-bg-white dark:tw-bg-gray-800 tw-rounded-lg tw-shadow tw-p-4 sm:tw-p-6">
       <h3 className="tw-text-lg tw-font-semibold tw-text-gray-900 dark:tw-text-gray-100 tw-mb-1">
         Progressive Overload Tracker
       </h3>
@@ -47,7 +47,7 @@ export function OverloadTracker({ summaries }: Props) {
       </p>
 
       {/* Summary counts */}
-      <div className="tw-flex tw-gap-4 tw-mb-5">
+      <div className="tw-flex tw-flex-wrap tw-gap-2 sm:tw-gap-4 tw-mb-5">
         {[
           { count: progressing.length, status: "progressing" as const },
           { count: maintaining.length, status: "maintaining" as const },
@@ -55,7 +55,7 @@ export function OverloadTracker({ summaries }: Props) {
         ].map(({ count, status }) => (
           <div
             key={status}
-            className={`tw-flex tw-items-center tw-gap-2 tw-px-3 tw-py-1.5 tw-rounded-full tw-text-sm tw-font-medium ${statusConfig[status].badge}`}
+            className={`tw-flex tw-items-center tw-gap-1.5 tw-px-2.5 tw-py-1 sm:tw-px-3 sm:tw-py-1.5 tw-rounded-full tw-text-xs sm:tw-text-sm tw-font-medium ${statusConfig[status].badge}`}
           >
             <span className="tw-font-bold">{count}</span>
             {statusConfig[status].label}
@@ -70,24 +70,27 @@ export function OverloadTracker({ summaries }: Props) {
           return (
             <div
               key={s.exerciseName}
-              className={`tw-flex tw-items-center tw-justify-between tw-px-4 tw-py-3 tw-rounded-lg tw-border ${config.bg} ${config.border}`}
+              className={`tw-px-3 tw-py-2.5 sm:tw-px-4 sm:tw-py-3 tw-rounded-lg tw-border ${config.bg} ${config.border}`}
             >
-              <div className="tw-flex tw-items-center tw-gap-3">
-                <span className="tw-text-sm tw-font-medium tw-text-gray-900 dark:tw-text-gray-100">
-                  {s.exerciseName}
-                </span>
-                <span className={`tw-text-xs tw-px-2 tw-py-0.5 tw-rounded-full ${config.badge}`}>
-                  {config.label}
-                </span>
-              </div>
-              <div className="tw-flex tw-items-center tw-gap-4 tw-text-sm">
-                <span className="tw-text-gray-500 dark:tw-text-gray-400">
-                  {s.previousE1RM} → {s.recentE1RM}
-                </span>
-                <span className={`tw-font-semibold ${config.arrow}`}>
-                  {s.changePercent > 0 ? "+" : ""}
-                  {s.changePercent}%
-                </span>
+              {/* Mobile: stacked layout, Desktop: single row */}
+              <div className="tw-flex tw-flex-col sm:tw-flex-row sm:tw-items-center sm:tw-justify-between tw-gap-1.5 sm:tw-gap-3">
+                <div className="tw-flex tw-items-center tw-gap-2 tw-min-w-0">
+                  <span className="tw-text-sm tw-font-medium tw-text-gray-900 dark:tw-text-gray-100 tw-truncate">
+                    {s.exerciseName}
+                  </span>
+                  <span className={`tw-text-xs tw-px-2 tw-py-0.5 tw-rounded-full tw-shrink-0 ${config.badge}`}>
+                    {config.label}
+                  </span>
+                </div>
+                <div className="tw-flex tw-items-center tw-gap-3 tw-text-sm tw-shrink-0">
+                  <span className="tw-text-gray-500 dark:tw-text-gray-400">
+                    {s.previousE1RM} → {s.recentE1RM}
+                  </span>
+                  <span className={`tw-font-semibold ${config.arrow}`}>
+                    {s.changePercent > 0 ? "+" : ""}
+                    {s.changePercent}%
+                  </span>
+                </div>
               </div>
             </div>
           );
