@@ -219,14 +219,11 @@ export default function AuctionBoard() {
       <div className="tw-relative tw-z-10 tw-mx-auto tw-max-w-7xl tw-px-4 tw-py-10 sm:tw-px-6 lg:tw-px-8">
         {/* Header */}
         <header className="tw-mb-8 tw-text-center">
-          <p className="tw-mb-1 tw-text-xs tw-font-bold tw-uppercase tw-tracking-[0.5em] tw-text-orange-300/80">
-            Family Reunion
-          </p>
           <h1 className="fire-text tw-text-5xl tw-font-black tw-uppercase tw-tracking-tight sm:tw-text-7xl">
             Survivor Auction
           </h1>
-          <p className="tw-mt-3 tw-text-sm tw-text-orange-200/70">
-            Outwit · Outplay · Outbid 🔥
+          <p className="tw-mt-3 tw-text-lg tw-font-semibold tw-italic tw-text-orange-200/80">
+            In The Hands of the Fam
           </p>
 
           <div className="tw-mt-5 tw-flex tw-items-center tw-justify-center">
