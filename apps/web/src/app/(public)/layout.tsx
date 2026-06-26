@@ -22,7 +22,7 @@ export default function PublicLayout({
   return (
     <div className="tw-min-h-screen tw-flex tw-flex-col tw-bg-white dark:tw-bg-gray-900 tw-transition-colors tw-duration-300 tw-ease-in-out">
       {/* Navigation */}
-      <nav className="tw-border-b tw-border-gray-200 tw-bg-white dark:tw-border-gray-700 dark:tw-bg-gray-900 tw-transition-colors tw-duration-300 tw-ease-in-out">
+      <nav className="tw-sticky tw-top-0 tw-z-navbar tw-border-b tw-border-gray-200 tw-bg-white/80 tw-backdrop-blur-md dark:tw-border-gray-700 dark:tw-bg-gray-900/80 tw-transition-colors tw-duration-300 tw-ease-in-out">
         <div className="tw-mx-auto tw-max-w-7xl tw-px-4 sm:tw-px-6 lg:tw-px-8">
           <div className="tw-flex tw-h-16 tw-items-center tw-justify-between">
             {/* Left - Logo & Social Links */}
