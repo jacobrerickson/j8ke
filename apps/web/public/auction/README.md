@@ -41,13 +41,21 @@ copyright caveat as the theme: fine for a private reunion, not for public deploy
 
 ## Family photos
 
-Add image files (jpg/png/webp), e.g.:
+The page seeds a default roster on first load. Each default player looks for a
+photo at `/auction/<firstname>.jpg` (lowercase). Drop these files in to give
+everyone a profile pic — missing ones fall back to initials automatically:
 
 ```
-grandma.jpg
-uncle-rob.png
+mom.jpg      dad.jpg      jeff.jpg     shaylee.jpg
+reese.jpg    shane.jpg    kelton.jpg   harper.jpg
+miles.jpg    marissa.jpg  deion.jpg    hailey.jpg
+josh.jpg     heather.jpg  ryan.jpg     lena.jpg
+malina.jpg   jake.jpg
 ```
 
-Then in the auction page, when you Add/Edit a contestant, set the photo path to
-match, e.g. `/auction/grandma.jpg`. No photo? The card shows the person's
-initials on a fiery gradient instead.
+For anyone you add yourself, set the photo path in the Add/Edit form, e.g.
+`/auction/grandma.jpg`. No photo? The card shows the person's initials on a
+fiery gradient instead.
+
+> The roster is editable: remove/add/edit anyone on the page. Use **Restore
+> default players** to bring the original list back.

@@ -6,11 +6,13 @@ import { AnimatePresence, motion } from "framer-motion";
 import {
   AuctionStorage,
   type Contestant,
+  type ContestantType,
   type AuctionSettings,
 } from "@/lib/auction/storage";
 import SoundBoard from "@/components/auction/SoundBoard";
 
-const QUICK_SPENDS = [20, 50, 100, 200];
+const ADULT_QUICK_SPENDS = [20, 50, 100, 200];
+const KID_QUICK_SPENDS = [5, 10, 20, 50];
 
 function formatMoney(n: number): string {
   const sign = n < 0 ? "-" : "";
@@ -22,6 +24,21 @@ function initials(name: string): string {
   if (parts.length === 0) return "?";
   if (parts.length === 1) return parts[0]!.slice(0, 2).toUpperCase();
   return (parts[0]![0]! + parts[parts.length - 1]![0]!).toUpperCase();
+}
+
+const IMG_EXTS = ["jpg", "jpeg", "png", "webp"] as const;
+
+/**
+ * Photo paths to try, in order. Lets you drop a .png (or .webp) even when the
+ * roster default points at .jpg — the card falls through to the next extension.
+ */
+function photoCandidates(photo: string): string[] {
+  if (!photo) return [];
+  const m = photo.match(/^(.*)\.(jpg|jpeg|png|webp)$/i);
+  if (!m) return [photo];
+  const base = m[1]!;
+  const used = m[2]!.toLowerCase();
+  return [photo, ...IMG_EXTS.filter((e) => e !== used).map((e) => `${base}.${e}`)];
 }
 
 /** Floating embers rendered once on mount with stable randomized values. */
@@ -66,6 +83,7 @@ interface DraftState {
   open: boolean;
   editingId: string | null;
   name: string;
+  type: ContestantType;
   photo: string;
   startingBudget: string;
 }
@@ -74,6 +92,7 @@ const EMPTY_DRAFT: DraftState = {
   open: false,
   editingId: null,
   name: "",
+  type: "adult",
   photo: "",
   startingBudget: "",
 };
@@ -81,7 +100,10 @@ const EMPTY_DRAFT: DraftState = {
 export default function AuctionBoard() {
   const [hydrated, setHydrated] = useState(false);
   const [contestants, setContestants] = useState<Contestant[]>([]);
-  const [settings, setSettings] = useState<AuctionSettings>({ defaultBudget: 500 });
+  const [settings, setSettings] = useState<AuctionSettings>({
+    adultBudget: 500,
+    kidBudget: 250,
+  });
   const [draft, setDraft] = useState<DraftState>(EMPTY_DRAFT);
   const [musicOn, setMusicOn] = useState(false);
   const [musicMissing, setMusicMissing] = useState(false);
@@ -122,6 +144,16 @@ export default function AuctionBoard() {
     );
   }
 
+  // Set a player's whole pot (e.g. their challenge winnings) — both the
+  // starting budget and current balance, so "spent" and reset stay accurate.
+  function setPot(id: string, value: number) {
+    setContestants((prev) =>
+      prev.map((c) =>
+        c.id === id ? { ...c, startingBudget: value, balance: value } : c,
+      ),
+    );
+  }
+
   function resetToBudget(id: string) {
     setContestants((prev) =>
       prev.map((c) => (c.id === id ? { ...c, balance: c.startingBudget } : c)),
@@ -139,13 +171,28 @@ export default function AuctionBoard() {
     setContestants((prev) => prev.map((c) => ({ ...c, balance: c.startingBudget })));
   }
 
+  function restoreDefaults() {
+    if (
+      !window.confirm(
+        "Restore the default players? This replaces the current roster.",
+      )
+    )
+      return;
+    setContestants(AuctionStorage.getDefaultRoster());
+  }
+
+  function budgetFor(type: ContestantType) {
+    return type === "kid" ? settings.kidBudget : settings.adultBudget;
+  }
+
   function openAdd() {
     setDraft({
       open: true,
       editingId: null,
       name: "",
+      type: "adult",
       photo: "",
-      startingBudget: String(settings.defaultBudget),
+      startingBudget: String(settings.adultBudget),
     });
   }
 
@@ -154,6 +201,7 @@ export default function AuctionBoard() {
       open: true,
       editingId: c.id,
       name: c.name,
+      type: c.type,
       photo: c.photo,
       startingBudget: String(c.startingBudget),
     });
@@ -169,7 +217,7 @@ export default function AuctionBoard() {
       setContestants((prev) =>
         prev.map((c) =>
           c.id === draft.editingId
-            ? { ...c, name, photo, startingBudget: budget }
+            ? { ...c, name, type: draft.type, photo, startingBudget: budget }
             : c,
         ),
       );
@@ -179,6 +227,7 @@ export default function AuctionBoard() {
         {
           id: AuctionStorage.newId(),
           name,
+          type: draft.type,
           photo,
           startingBudget: budget,
           balance: budget,
@@ -253,16 +302,34 @@ export default function AuctionBoard() {
         {/* Control bar */}
         <div className="tw-mb-8 tw-flex tw-flex-wrap tw-items-center tw-justify-center tw-gap-3 tw-rounded-2xl tw-border tw-border-orange-500/20 tw-bg-black/40 tw-p-4 tw-backdrop-blur">
           <label className="tw-flex tw-items-center tw-gap-2 tw-text-sm tw-text-orange-200/90">
-            Default budget
+            Adult budget
             <span className="tw-text-orange-400">$</span>
             <input
               type="number"
               min={0}
-              value={settings.defaultBudget}
+              value={settings.adultBudget}
               onChange={(e) =>
-                setSettings({
-                  defaultBudget: Math.max(0, Math.round(Number(e.target.value) || 0)),
-                })
+                setSettings((s) => ({
+                  ...s,
+                  adultBudget: Math.max(0, Math.round(Number(e.target.value) || 0)),
+                }))
+              }
+              className="tw-w-24 tw-rounded-lg tw-border tw-border-orange-500/30 tw-bg-black/50 tw-px-3 tw-py-1.5 tw-text-orange-50 focus:tw-border-orange-400 focus:tw-outline-none"
+            />
+          </label>
+
+          <label className="tw-flex tw-items-center tw-gap-2 tw-text-sm tw-text-orange-200/90">
+            Kid budget
+            <span className="tw-text-orange-400">$</span>
+            <input
+              type="number"
+              min={0}
+              value={settings.kidBudget}
+              onChange={(e) =>
+                setSettings((s) => ({
+                  ...s,
+                  kidBudget: Math.max(0, Math.round(Number(e.target.value) || 0)),
+                }))
               }
               className="tw-w-24 tw-rounded-lg tw-border tw-border-orange-500/30 tw-bg-black/50 tw-px-3 tw-py-1.5 tw-text-orange-50 focus:tw-border-orange-400 focus:tw-outline-none"
             />
@@ -283,6 +350,13 @@ export default function AuctionBoard() {
               Reset all
             </button>
           )}
+
+          <button
+            onClick={restoreDefaults}
+            className="tw-rounded-lg tw-border tw-border-orange-500/30 tw-bg-black/40 tw-px-4 tw-py-2 tw-text-sm tw-font-semibold tw-text-orange-100 hover:tw-bg-black/60"
+          >
+            Restore default players
+          </button>
 
           {contestants.length > 0 && (
             <div className="tw-ml-auto tw-flex tw-gap-4 tw-text-sm">
@@ -322,6 +396,7 @@ export default function AuctionBoard() {
                   onSpend={(amt) => updateBalance(c.id, -amt)}
                   onAdd={(amt) => updateBalance(c.id, amt)}
                   onSet={(v) => setBalance(c.id, v)}
+                  onSetPot={(v) => setPot(c.id, v)}
                   onReset={() => resetToBudget(c.id)}
                   onEdit={() => openEdit(c)}
                   onRemove={() => removeContestant(c.id)}
@@ -354,6 +429,36 @@ export default function AuctionBoard() {
               </h2>
 
               <div className="tw-space-y-4">
+                <Field label="Player type">
+                  <div className="tw-grid tw-grid-cols-2 tw-gap-2">
+                    {(["adult", "kid"] as ContestantType[]).map((t) => (
+                      <button
+                        key={t}
+                        type="button"
+                        onClick={() =>
+                          setDraft((d) => ({
+                            ...d,
+                            type: t,
+                            // Snap budget to the type's default unless it was hand-edited.
+                            startingBudget:
+                              d.startingBudget === "" ||
+                              d.startingBudget === String(budgetFor(d.type))
+                                ? String(budgetFor(t))
+                                : d.startingBudget,
+                          }))
+                        }
+                        className={`tw-rounded-lg tw-border tw-px-3 tw-py-2 tw-text-sm tw-font-bold tw-capitalize tw-transition-colors ${
+                          draft.type === t
+                            ? "tw-border-orange-400 tw-bg-gradient-to-b tw-from-orange-500/40 tw-to-red-700/40 tw-text-orange-50"
+                            : "tw-border-orange-500/30 tw-bg-black/40 tw-text-orange-200 hover:tw-bg-black/60"
+                        }`}
+                      >
+                        {t === "kid" ? "🧒 Kid" : "🧑 Adult"}
+                      </button>
+                    ))}
+                  </div>
+                </Field>
+
                 <Field label="Name">
                   <input
                     autoFocus
@@ -450,6 +555,7 @@ function ContestantCard({
   onSpend,
   onAdd,
   onSet,
+  onSetPot,
   onReset,
   onEdit,
   onRemove,
@@ -458,12 +564,33 @@ function ContestantCard({
   onSpend: (amt: number) => void;
   onAdd: (amt: number) => void;
   onSet: (v: number) => void;
+  onSetPot: (v: number) => void;
   onReset: () => void;
   onEdit: () => void;
   onRemove: () => void;
 }) {
   const [custom, setCustom] = useState("");
+  const [candIdx, setCandIdx] = useState(0);
+  const [editingPot, setEditingPot] = useState(false);
+  const [potDraft, setPotDraft] = useState("");
   const broke = c.balance <= 0;
+  const isKid = c.type === "kid";
+  const candidates = useMemo(() => photoCandidates(c.photo), [c.photo]);
+  const currentSrc = candidates[candIdx];
+  const showImage = !!currentSrc;
+
+  // Restart the extension search if the photo path changes (e.g. after an edit).
+  useEffect(() => setCandIdx(0), [c.photo]);
+
+  function startEditPot() {
+    setPotDraft(String(c.balance));
+    setEditingPot(true);
+  }
+
+  function commitPot() {
+    onSetPot(Math.max(0, Math.round(Number(potDraft) || 0)));
+    setEditingPot(false);
+  }
 
   function applyCustom(direction: 1 | -1) {
     const amt = Math.round(Number(custom) || 0);
@@ -495,16 +622,22 @@ function ContestantCard({
         {/* Avatar */}
         <div
           className={`tw-relative tw-h-16 tw-w-16 tw-shrink-0 tw-overflow-hidden tw-rounded-full tw-border-2 ${
-            broke ? "tw-border-stone-500" : "tw-border-orange-400"
+            broke
+              ? "tw-border-stone-500"
+              : isKid
+                ? "tw-border-cyan-400"
+                : "tw-border-orange-400"
           } tw-bg-gradient-to-br tw-from-orange-700 tw-to-red-900`}
         >
-          {c.photo ? (
+          {showImage ? (
             <Image
-              src={c.photo}
+              key={currentSrc}
+              src={currentSrc}
               alt={c.name}
               fill
               sizes="64px"
               className="tw-object-cover"
+              onError={() => setCandIdx((i) => i + 1)}
             />
           ) : (
             <div className="tw-flex tw-h-full tw-w-full tw-items-center tw-justify-center tw-text-lg tw-font-black tw-text-orange-100">
@@ -517,17 +650,35 @@ function ContestantCard({
           <h3 className="tw-truncate tw-text-lg tw-font-bold tw-text-orange-50">
             {c.name}
           </h3>
-          <AnimatePresence mode="popLayout">
-            <motion.div
-              key={c.balance}
-              initial={{ scale: 1.35, color: "#fde68a" }}
-              animate={{ scale: 1, color: broke ? "#a8a29e" : "#86efac" }}
-              transition={{ duration: 0.35 }}
-              className="tw-text-2xl tw-font-black tw-tabular-nums"
-            >
-              {formatMoney(c.balance)}
-            </motion.div>
-          </AnimatePresence>
+          {editingPot ? (
+            <input
+              autoFocus
+              type="number"
+              min={0}
+              value={potDraft}
+              onChange={(e) => setPotDraft(e.target.value)}
+              onBlur={commitPot}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") commitPot();
+                if (e.key === "Escape") setEditingPot(false);
+              }}
+              className="auction-input tw-w-28 tw-text-2xl tw-font-black tw-tabular-nums"
+            />
+          ) : (
+            <AnimatePresence mode="popLayout">
+              <motion.button
+                key={c.balance}
+                onClick={startEditPot}
+                title="Click to set this player's money"
+                initial={{ scale: 1.35, color: "#fde68a" }}
+                animate={{ scale: 1, color: broke ? "#a8a29e" : "#86efac" }}
+                transition={{ duration: 0.35 }}
+                className="tw-block tw-text-2xl tw-font-black tw-tabular-nums hover:tw-opacity-80"
+              >
+                {formatMoney(c.balance)}
+              </motion.button>
+            </AnimatePresence>
+          )}
           <p className="tw-text-xs tw-text-orange-300/50">
             of {formatMoney(c.startingBudget)}
             {broke && (
@@ -541,7 +692,7 @@ function ContestantCard({
 
       {/* Quick spends */}
       <div className="tw-relative tw-mt-4 tw-grid tw-grid-cols-4 tw-gap-2">
-        {QUICK_SPENDS.map((amt) => (
+        {(isKid ? KID_QUICK_SPENDS : ADULT_QUICK_SPENDS).map((amt) => (
           <button
             key={amt}
             onClick={() => onSpend(amt)}
