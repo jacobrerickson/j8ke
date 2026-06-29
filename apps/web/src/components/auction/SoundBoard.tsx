@@ -12,11 +12,8 @@ interface Clip {
 
 // Files live at: public/auction/sfx/<file>.mp3
 const CLIPS: Clip[] = [
-  { file: "welcome", label: "Welcome to this season of Survivor", emoji: "🌴" },
   { file: "come-on-in", label: "Come on in, guys!", emoji: "📣" },
   { file: "playing-for", label: "Wanna know what you're playing for?", emoji: "💰" },
-  { file: "worth-playing-for", label: "Worth playing for?", emoji: "🤔" },
-  { file: "dig-deep", label: "Dig deep!", emoji: "💪" },
   { file: "survivors-ready", label: "Survivors ready…", emoji: "⏳" },
   { file: "go", label: "GO!", emoji: "🏁" },
   { file: "wow", label: "Wow!", emoji: "😮" },

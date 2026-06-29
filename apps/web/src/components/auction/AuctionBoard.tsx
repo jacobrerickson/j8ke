@@ -570,11 +570,13 @@ function ContestantCard({
   onRemove: () => void;
 }) {
   const [custom, setCustom] = useState("");
+  const [showCustom, setShowCustom] = useState(false);
   const [candIdx, setCandIdx] = useState(0);
   const [editingPot, setEditingPot] = useState(false);
   const [potDraft, setPotDraft] = useState("");
   const broke = c.balance <= 0;
   const isKid = c.type === "kid";
+  const amounts = isKid ? KID_QUICK_SPENDS : ADULT_QUICK_SPENDS;
   const candidates = useMemo(() => photoCandidates(c.photo), [c.photo]);
   const currentSrc = candidates[candIdx];
   const showImage = !!currentSrc;
@@ -690,45 +692,67 @@ function ContestantCard({
         </div>
       </div>
 
-      {/* Quick spends */}
+      {/* Quick spends (subtract) */}
       <div className="tw-relative tw-mt-4 tw-grid tw-grid-cols-4 tw-gap-2">
-        {(isKid ? KID_QUICK_SPENDS : ADULT_QUICK_SPENDS).map((amt) => (
+        {amounts.map((amt) => (
           <button
             key={amt}
             onClick={() => onSpend(amt)}
-            className="tw-rounded-lg tw-border tw-border-orange-500/30 tw-bg-orange-950/40 tw-py-1.5 tw-text-sm tw-font-bold tw-text-orange-200 hover:tw-bg-orange-900/60"
+            className="tw-rounded-lg tw-border tw-border-red-500/30 tw-bg-red-950/40 tw-py-1.5 tw-text-sm tw-font-bold tw-text-red-200 hover:tw-bg-red-900/60"
           >
             -${amt}
           </button>
         ))}
       </div>
 
-      {/* Custom amount */}
-      <div className="tw-relative tw-mt-2 tw-flex tw-gap-2">
-        <input
-          type="number"
-          min={0}
-          value={custom}
-          onChange={(e) => setCustom(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && applyCustom(-1)}
-          placeholder="Custom"
-          className="auction-input tw-flex-1"
-        />
-        <button
-          onClick={() => applyCustom(-1)}
-          className="tw-rounded-lg tw-bg-gradient-to-b tw-from-red-500 tw-to-red-700 tw-px-3 tw-py-1.5 tw-text-sm tw-font-bold tw-text-white hover:tw-from-red-400"
-          title="Spend (subtract)"
-        >
-          Spend
-        </button>
-        <button
-          onClick={() => applyCustom(1)}
-          className="tw-rounded-lg tw-bg-gradient-to-b tw-from-emerald-500 tw-to-emerald-700 tw-px-3 tw-py-1.5 tw-text-sm tw-font-bold tw-text-white hover:tw-from-emerald-400"
-          title="Add money back"
-        >
-          Add
-        </button>
+      {/* Quick adds */}
+      <div className="tw-relative tw-mt-2 tw-grid tw-grid-cols-4 tw-gap-2">
+        {amounts.map((amt) => (
+          <button
+            key={amt}
+            onClick={() => onAdd(amt)}
+            className="tw-rounded-lg tw-border tw-border-emerald-500/30 tw-bg-emerald-950/40 tw-py-1.5 tw-text-sm tw-font-bold tw-text-emerald-200 hover:tw-bg-emerald-900/60"
+          >
+            +${amt}
+          </button>
+        ))}
       </div>
+
+      {/* Custom amount (collapsed by default — uncommon) */}
+      <button
+        onClick={() => setShowCustom((s) => !s)}
+        className="tw-relative tw-mt-2 tw-text-xs tw-text-orange-300/70 hover:tw-text-orange-200"
+      >
+        {showCustom ? "− Hide custom amount" : "+ Custom amount"}
+      </button>
+      {showCustom && (
+        <div className="tw-relative tw-mt-2 tw-flex tw-gap-2">
+          <input
+            autoFocus
+            type="number"
+            min={0}
+            value={custom}
+            onChange={(e) => setCustom(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && applyCustom(-1)}
+            placeholder="Custom"
+            className="auction-input tw-flex-1"
+          />
+          <button
+            onClick={() => applyCustom(-1)}
+            className="tw-rounded-lg tw-bg-gradient-to-b tw-from-red-500 tw-to-red-700 tw-px-3 tw-py-1.5 tw-text-sm tw-font-bold tw-text-white hover:tw-from-red-400"
+            title="Spend (subtract)"
+          >
+            Spend
+          </button>
+          <button
+            onClick={() => applyCustom(1)}
+            className="tw-rounded-lg tw-bg-gradient-to-b tw-from-emerald-500 tw-to-emerald-700 tw-px-3 tw-py-1.5 tw-text-sm tw-font-bold tw-text-white hover:tw-from-emerald-400"
+            title="Add money back"
+          >
+            Add
+          </button>
+        </div>
+      )}
 
       {/* Footer actions */}
       <div className="tw-relative tw-mt-3 tw-flex tw-items-center tw-justify-between tw-text-xs">

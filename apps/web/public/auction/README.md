@@ -24,11 +24,8 @@ exactly (MP3):
 
 | Button                               | File                        |
 | ------------------------------------ | --------------------------- |
-| Welcome to this season of Survivor   | `welcome.mp3`               |
 | Come on in, guys!                    | `come-on-in.mp3`            |
 | Wanna know what you're playing for?  | `playing-for.mp3`           |
-| Worth playing for?                   | `worth-playing-for.mp3`     |
-| Dig deep!                            | `dig-deep.mp3`              |
 | Survivors ready…                     | `survivors-ready.mp3`       |
 | GO!                                  | `go.mp3`                    |
 | Wow!                                 | `wow.mp3`                   |
