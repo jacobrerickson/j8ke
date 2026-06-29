@@ -32,6 +32,13 @@ exactly (MP3):
 | Applause                             | `applause.mp3`              |
 | The tribe has spoken                 | `tribe-has-spoken.mp3`      |
 
+### Torch-snuff sound
+
+When a player's balance hits $0, the page auto-plays `sfx/snuff.mp3` (a torch
+extinguish / whoosh). If that file is missing it falls back to
+`tribe-has-spoken.mp3`, so there's always *something*. Drop in a `snuff.mp3` for
+the real effect.
+
 Missing clips show greyed-out on the page with a hint — add the file and the
 button lights up. Clips auto-duck the theme music while they play. (Same
 copyright caveat as the theme: fine for a private reunion, not for public deploy.)

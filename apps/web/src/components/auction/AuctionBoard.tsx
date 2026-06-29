@@ -14,6 +14,17 @@ import SoundBoard from "@/components/auction/SoundBoard";
 const ADULT_QUICK_SPENDS = [20, 50, 100, 200];
 const KID_QUICK_SPENDS = [5, 10, 20, 50];
 
+/** Plays the torch-snuff sound, falling back to the tribe-has-spoken clip. */
+function playSnuffSound() {
+  const primary = new Audio("/auction/sfx/snuff.mp3");
+  primary.volume = 0.85;
+  primary.play().catch(() => {
+    const fallback = new Audio("/auction/sfx/tribe-has-spoken.mp3");
+    fallback.volume = 0.85;
+    fallback.play().catch(() => {});
+  });
+}
+
 function formatMoney(n: number): string {
   const sign = n < 0 ? "-" : "";
   return sign + "$" + Math.abs(n).toLocaleString("en-US");
@@ -574,7 +585,9 @@ function ContestantCard({
   const [candIdx, setCandIdx] = useState(0);
   const [editingPot, setEditingPot] = useState(false);
   const [potDraft, setPotDraft] = useState("");
+  const [snuffing, setSnuffing] = useState(false);
   const broke = c.balance <= 0;
+  const wasBrokeRef = useRef(broke);
   const isKid = c.type === "kid";
   const amounts = isKid ? KID_QUICK_SPENDS : ADULT_QUICK_SPENDS;
   const candidates = useMemo(() => photoCandidates(c.photo), [c.photo]);
@@ -583,6 +596,18 @@ function ContestantCard({
 
   // Restart the extension search if the photo path changes (e.g. after an edit).
   useEffect(() => setCandIdx(0), [c.photo]);
+
+  // The moment a player crosses from money → broke: snuff their torch.
+  useEffect(() => {
+    const wasBroke = wasBrokeRef.current;
+    wasBrokeRef.current = broke;
+    if (!wasBroke && broke) {
+      setSnuffing(true);
+      playSnuffSound();
+      const t = setTimeout(() => setSnuffing(false), 2400);
+      return () => clearTimeout(t);
+    }
+  }, [broke]);
 
   function startEditPot() {
     setPotDraft(String(c.balance));
@@ -619,6 +644,48 @@ function ContestantCard({
       {!broke && (
         <div className="tw-pointer-events-none tw-absolute tw-inset-x-0 tw-bottom-0 tw-h-24 tw-bg-[radial-gradient(80%_100%_at_50%_120%,rgba(255,110,0,0.35),transparent_70%)]" />
       )}
+
+      {/* "Snuff the torch" moment */}
+      <AnimatePresence>
+        {snuffing && (
+          <motion.div
+            className="tw-pointer-events-none tw-absolute tw-inset-0 tw-z-20 tw-flex tw-flex-col tw-items-center tw-justify-center tw-bg-black/70 tw-backdrop-blur-sm"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            {/* flame goes out, smoke rises */}
+            <div className="tw-relative tw-h-16 tw-w-16">
+              <motion.span
+                className="tw-absolute tw-inset-0 tw-flex tw-items-center tw-justify-center tw-text-5xl"
+                initial={{ scale: 1.3, opacity: 1, y: 0 }}
+                animate={{ scale: 0.2, opacity: 0, y: -10 }}
+                transition={{ duration: 0.9, ease: "easeIn" }}
+              >
+                🔥
+              </motion.span>
+              <motion.span
+                className="tw-absolute tw-inset-0 tw-flex tw-items-center tw-justify-center tw-text-5xl"
+                initial={{ scale: 0.4, opacity: 0, y: 0 }}
+                animate={{ scale: 1.4, opacity: [0, 0.9, 0], y: -50 }}
+                transition={{ duration: 1.6, ease: "easeOut", delay: 0.5 }}
+              >
+                💨
+              </motion.span>
+            </div>
+            <motion.div
+              className="tw-mt-2 tw-text-center tw-text-sm tw-font-black tw-uppercase tw-tracking-[0.3em] tw-text-stone-300"
+              initial={{ scale: 0.6, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ delay: 0.9, type: "spring", stiffness: 300, damping: 18 }}
+            >
+              The tribe
+              <br />
+              has spoken
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <div className="tw-relative tw-flex tw-items-center tw-gap-4">
         {/* Avatar */}
